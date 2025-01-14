@@ -43,6 +43,10 @@ export function manageEmbedsMenu() {
         label: "Criar novo embed",
         style: ButtonStyle.Success
     }), new ButtonBuilder({
+        customId: "send/embed/optionsEmbed",
+        label: "Enviar embed",
+        style: ButtonStyle.Success
+    }), new ButtonBuilder({
         customId: "dashboard/return/dashBoard",
         emoji: '↩️',
         style: ButtonStyle.Secondary

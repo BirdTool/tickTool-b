@@ -19,6 +19,6 @@ export function baseRegisterEvents(client) {
 }
 export function baseEventLog(data) {
     baseStorage.loadLogs.events
-        .push(ck.green(`${ck.greenBright.underline(`${data.event}`)} ${ck.yellow.underline(data.name)} event loaded!`));
+        .push(ck.hex("#ff76a8")(`${ck.hex("#ff76a8").underline(`${data.event}`)} ${ck.white.underline(data.name)} event loaded!`));
 }
 ;

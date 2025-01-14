@@ -51,6 +51,13 @@ createResponder({
                 }
                 return interaction.update(menus.tickets());
             }
+            case "manageStaffs": {
+                if (!isStaff(interaction.user.id, "superAdmin")) {
+                    return interaction.reply("Você não é um Super Admin ou superior!");
+                }
+                const manageStaffsMenu = await menus.manageStaffs(interaction.guild);
+                return interaction.update(manageStaffsMenu);
+            }
         }
     },
 });
