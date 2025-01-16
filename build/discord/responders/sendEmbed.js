@@ -5,6 +5,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, EmbedBuilder, StringSelectMenuBuilder } from "discord.js";
+import { logChannel } from "../../functions/log.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const embedPath = path.resolve(__dirname, '../data/embeds.json');
@@ -144,6 +145,8 @@ createResponder({
                         .setImage(embedChoice.image?.url ?? null);
                     // Envia o embed no canal escolhido
                     await channel.send({ embeds: [embed] });
+                    // avisar no canal de logs
+                    logChannel(interaction, "Embed enviado", `Embed enviado com sucesso no canal <#${choice}>!`, interaction.user.username, interaction.user.displayAvatarURL({ size: 128 }));
                     // Responde ao usuário para confirmar que foi enviado
                     return interaction.update({ content: `Embed enviado com sucesso no canal <#${choice}>!`, embeds: [], components: [] });
                 }

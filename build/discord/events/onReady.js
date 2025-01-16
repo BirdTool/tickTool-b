@@ -17,6 +17,8 @@ async function getBotOwnerID(client) {
 // Simula __dirname em ES Modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../../package.json'), 'utf-8'));
+const version = "0.3.3";
 createEvent({
     name: "onReady",
     event: "ready",
@@ -48,5 +50,11 @@ createEvent({
         catch (error) {
             console.error(chalk.red("Erro ao ler ou atualizar o arquivo config.json:"), error);
         }
+        if (version !== packageJson.version) {
+            console.log(chalk.red("Package.json foi alterado! baixe a versão mais recente do bot!"));
+            return;
+        }
+        ;
+        console.log(chalk.green("Versão atual: ", chalk.underline(version)));
     },
 });

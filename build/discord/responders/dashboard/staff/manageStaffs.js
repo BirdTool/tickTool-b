@@ -12,6 +12,10 @@ createResponder({
                 const editStaffMenu = await menus.editStaff(interaction);
                 return interaction.update(editStaffMenu);
             }
+            case "remove": {
+                const deleteStaffMenu = await menus.deleteStaff(interaction);
+                return interaction.update(deleteStaffMenu);
+            }
         }
     },
 });

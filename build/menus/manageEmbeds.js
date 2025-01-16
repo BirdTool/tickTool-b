@@ -4,10 +4,10 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { settings } from "#settings";
+// Caminho para o arquivo JSON
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 const getEmbeds = (option) => {
-    // Caminho para o arquivo JSON
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
     const filePath = path.resolve(__dirname, "../discord/data/embeds.json");
     // Ler o arquivo JSON
     const rawData = fs.readFileSync(filePath, "utf8");
@@ -33,11 +33,6 @@ export function manageEmbedsMenu() {
         value: name,
         emoji: "📜" // Emoji opcional
     }));
-    const row = createRow(new StringSelectMenuBuilder({
-        customId: "manage/embeds/select",
-        placeholder: "Selecione o embed que deseja modificar",
-        options: selectMenuOptions
-    }));
     const buttons = createRow(new ButtonBuilder({
         customId: "manage/embeds/criar",
         label: "Criar novo embed",
@@ -51,10 +46,27 @@ export function manageEmbedsMenu() {
         emoji: '↩️',
         style: ButtonStyle.Secondary
     }));
+    let selectMenu;
+    if (getEmbeds("quantity") > 0) {
+        selectMenu = createRow(new StringSelectMenuBuilder({
+            customId: "manage/embeds/select",
+            placeholder: "Selecione o embed que deseja modificar",
+            options: selectMenuOptions,
+            disabled: false
+        }));
+    }
+    else {
+        selectMenu = createRow(new StringSelectMenuBuilder({
+            customId: "manage/embeds/select",
+            placeholder: "Selecione o embed que deseja modificar",
+            options: [{ label: "O que está fazendo aqui? saia daqui!", value: "Não há embeds para selecionar" }],
+            disabled: true
+        }));
+    }
     return {
         flags,
         embeds: [embed],
-        components: [row, buttons]
+        components: [selectMenu, buttons]
     };
 }
 ;

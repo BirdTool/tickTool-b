@@ -6,6 +6,7 @@ import { menus } from "#menus";
 import { createEmbed, createRow } from "@magicyan/discord";
 import { settings } from "#settings";
 import { StringSelectMenuBuilder } from "discord.js";
+import { logChannel } from "../../../../functions/log.js";
 createResponder({
     customId: "atribuir/ticket/:stap",
     types: [ResponderType.StringSelect], cache: "cached",
@@ -102,6 +103,8 @@ createResponder({
                 })),
                 color: settings.colors.success,
             });
+            //avisar no canal de logs
+            logChannel(interaction, "Embed atualizado", `Foi atribuido os tickets \`${choices.join("`, `")}\` ao embed ${embedChoiceName}`, interaction.user.username, interaction.user.displayAvatarURL({ size: 128 }));
             return interaction.update({
                 embeds: [embed],
                 components: [], // Remove os menus de seleção após a atualização

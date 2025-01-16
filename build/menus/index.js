@@ -2,6 +2,7 @@ import { createEmbedMenu, manageFieldsMenu } from "./createEmbed.js";
 import { dashboardMenu } from "./dashboard.js";
 import { manageEmbedsMenu } from "./manageEmbeds.js";
 import { addStaffMenu } from "./manageStaffs/addStaff.js";
+import { deleteStaffMenu } from "./manageStaffs/deleteStaff.js";
 import { editStaffMenu } from "./manageStaffs/editStaff.js";
 import { manageStaffMenu } from "./manageStaffs/manageStaff.js";
 import { ticketAddMenu } from "./tickets/ticketAdd.js";
@@ -15,5 +16,6 @@ export const menus = {
     ticketsAdd: ticketAddMenu,
     manageStaffs: manageStaffMenu,
     addStaff: addStaffMenu,
-    editStaff: editStaffMenu
+    editStaff: editStaffMenu,
+    deleteStaff: deleteStaffMenu
 };

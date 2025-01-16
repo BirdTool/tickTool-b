@@ -6,9 +6,10 @@ import fs from "fs";
 import { settings } from "#settings";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const configPath = path.resolve(__dirname, '../../discord/data/config.json');
-const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 export async function manageStaffMenu(guild) {
+    // Lê o arquivo de configuração toda vez que a função é chamada
+    const configPath = path.resolve(__dirname, '../../discord/data/config.json');
+    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
     // Função para obter nomes de usuários por IDs
     const getUsernames = async (ids) => {
         const names = [];

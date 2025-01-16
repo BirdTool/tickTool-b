@@ -1,7 +1,7 @@
 import { createCommand } from "#base";
 import { menus } from "#menus";
 import { ApplicationCommandType } from "discord.js";
-import { isStaff } from "functions/isStaff.js";
+import { isStaff } from "../../../functions/isStaff.js";
 createCommand({
     name: "dashboard",
     description: "Menu do administrador",

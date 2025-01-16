@@ -4,7 +4,7 @@ import { menus } from "#menus";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { isStaff } from "functions/isStaff.js";
+import { isStaff } from "../../../functions/isStaff.js";
 createCommand({
     name: "embed",
     description: "gerenciar embed",

@@ -19,9 +19,9 @@ export function dashboardMenu() {
         label: "Gerenciar Tickets",
         style: ButtonStyle.Success
     }), new ButtonBuilder({
-        customId: "dashboard/admin/categoryTicketID",
-        label: "Categoria de tickets",
-        style: ButtonStyle.Primary
+        customId: "dashboard/admin/logsChannelID",
+        label: "Canal de Logs",
+        style: ButtonStyle.Secondary
     }));
     return {
         flags,
