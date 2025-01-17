@@ -30,7 +30,7 @@ createCommand({
     type: ApplicationCommandType.ChatInput,
     async run(interaction) {
         const subcommand = interaction.options.getSubcommand();
-        const github = "https://github.com/BirdTool/tickTool-b/";
+        const github = "https://github.com/BirdTool/tickTool-b";
         switch (subcommand) {
             case "link": {
                 const embed = createEmbed({
@@ -53,13 +53,13 @@ createCommand({
                     title: "Reportar bug",
                     description: "Encontrou algum bug? Acesse o link abaixo e mande seu erro no github! \n > por favor coloque o erro tambem \n não sabe qual é o erro? use .logs (caso vc use a discloud) no server da discloud para saber o erro do bot!",
                     color: settings.colors.success,
-                    url: github,
+                    url: `${github}/new?template=Blank+issue`,
                     author: { name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ extension: "png" }) },
                     footer: { text: "Clique no botão para acessar o github" },
                 });
                 const button = createRow(new ButtonBuilder({
                     label: "Clique aqui",
-                    url: `${github}/issues`,
+                    url: `${github}/new?template=Blank+issue`,
                     style: ButtonStyle.Link,
                 }));
                 return interaction.reply({ embeds: [embed], components: [button] });
@@ -69,11 +69,11 @@ createCommand({
                     title: "Sugestão",
                     description: "Acesse o link abaixo e mande sua sugestão no github!",
                     color: settings.colors.success,
-                    url: `${github}/issues`,
+                    url: `${github}/new?template=Blank+issue`,
                 });
                 const button = createRow(new ButtonBuilder({
                     label: "Clique aqui",
-                    url: `${github}/issues`,
+                    url: `${github}/new?template=Blank+issue`,
                     style: ButtonStyle.Link,
                 }));
                 return interaction.reply({ embeds: [embed], components: [button] });
@@ -83,11 +83,11 @@ createCommand({
                     title: "Ajuda",
                     description: "Não encontrou a ajuda que procura? Acesse o link abaixo e mande sua dúvida no github!",
                     color: settings.colors.success,
-                    url: `${github}/issues`,
+                    url: `${github}/new?template=Blank+issue`,
                 });
                 const button = createRow(new ButtonBuilder({
                     label: "Clique aqui",
-                    url: `${github}/issues`,
+                    url: `${github}/new?template=Blank+issue`,
                     style: ButtonStyle.Link,
                 }));
                 return interaction.reply({ embeds: [embed], components: [button] });

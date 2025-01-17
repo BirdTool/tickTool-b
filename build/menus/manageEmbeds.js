@@ -40,7 +40,8 @@ export function manageEmbedsMenu() {
     }), new ButtonBuilder({
         customId: "send/embed/optionsEmbed",
         label: "Enviar embed",
-        style: ButtonStyle.Success
+        style: ButtonStyle.Success,
+        disabled: getEmbeds("quantity") === 0
     }), new ButtonBuilder({
         customId: "dashboard/return/dashBoard",
         emoji: '↩️',
@@ -59,7 +60,7 @@ export function manageEmbedsMenu() {
         selectMenu = createRow(new StringSelectMenuBuilder({
             customId: "manage/embeds/select",
             placeholder: "Selecione o embed que deseja modificar",
-            options: [{ label: "O que está fazendo aqui? saia daqui!", value: "Não há embeds para selecionar" }],
+            options: [{ label: "O que está fazendo aqui?", value: "Não há embeds para selecionar" }],
             disabled: true
         }));
     }

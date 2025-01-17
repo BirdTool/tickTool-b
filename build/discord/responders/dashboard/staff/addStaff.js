@@ -7,8 +7,6 @@ import { userMention } from "discord.js";
 import { logChannel } from "../../../../functions/log.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const configPath = path.resolve(__dirname, '../../../data/config.json');
-const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
 createResponder({
     customId: "staff/:action",
     types: [ResponderType.Button, ResponderType.UserSelect, ResponderType.StringSelect], cache: "cached",
@@ -18,6 +16,8 @@ createResponder({
         const stringSelectMenu = interaction.message.components[1].components[0];
         const role = stringSelectMenu.data.options.find(c => c.default)?.value ?? "";
         if (interaction.isUserSelectMenu()) {
+            const configPath = path.resolve(__dirname, '../../../data/config.json');
+            const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
             const ownerID = config.botOwnerID;
             const superAdmins = new Set(config.superAdmins);
             const admins = new Set(config.admins);
@@ -40,6 +40,8 @@ createResponder({
             return interaction.update(menus.addStaff(interaction, idList, choice));
         }
         else {
+            const configPath = path.resolve(__dirname, '../../../data/config.json');
+            const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
             // Determina a configuração com base na role escolhida
             let roleConfig;
             if (role === "moderator") {

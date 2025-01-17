@@ -8,12 +8,12 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder,
 import { logChannel } from "../../functions/log.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const embedPath = path.resolve(__dirname, '../data/embeds.json');
-const embedJson = JSON.parse(fs.readFileSync(embedPath, 'utf-8'));
 createResponder({
     customId: "send/embed/:stap",
     types: [ResponderType.Button, ResponderType.StringSelect, ResponderType.ChannelSelect], cache: "cached",
     async run(interaction, { stap }) {
+        const embedPath = path.resolve(__dirname, '../data/embeds.json');
+        const embedJson = JSON.parse(fs.readFileSync(embedPath, 'utf-8'));
         if (interaction.isButton()) {
             switch (stap) {
                 case "optionsEmbed": {
