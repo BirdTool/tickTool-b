@@ -202,7 +202,7 @@ createResponder({
                     if (!config.ticketsManage || Object.keys(config.ticketsManage).length === 0) {
                         return interaction.reply({
                             content: "Não há tickets cadastrados. Aperte no botão de adicionar ticket.",
-                            ephemeral: true,
+                            flags
                         });
                     }
                     // Deleta os tickets selecionados

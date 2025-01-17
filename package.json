@@ -1,5 +1,6 @@
 {
   "name": "ticketptb",
+  "version": "1.4.3",
   "type": "module",
   "main": "build/index.js",
   "scripts": {

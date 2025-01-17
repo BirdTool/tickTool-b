@@ -6,6 +6,7 @@ import { menus } from "#menus";
 import { createEmbed, createRow } from "@magicyan/discord";
 import { settings } from "#settings";
 import { StringSelectMenuBuilder } from "discord.js";
+import { logChannel } from "../../../../functions/log.js";
 createResponder({
     customId: "atribuir/ticket/:stap",
     types: [ResponderType.StringSelect], cache: "cached",
@@ -80,26 +81,30 @@ createResponder({
             if (!embedChoiceName || !(embedChoiceName in embedJson)) {
                 return interaction.reply({
                     content: `Embed "${embedChoiceName}" não encontrado.`,
-                    ephemeral: true,
+                    flags: MessageFlags.Ephemeral,
                 });
             }
             // Obtém o embed selecionado do JSON
             const selectedEmbed = embedJson[embedChoiceName];
+            // Inicializa 'tickets' como um array vazio, se estiver undefined
+            selectedEmbed.tickets = selectedEmbed.tickets || [];
             // Atualiza a propriedade 'tickets', garantindo que não haja duplicatas
-            selectedEmbed.tickets = [Array.from(new Set([...(selectedEmbed.tickets?.flat().filter((ticket) => !!ticket) || []), ...choices]))];
+            selectedEmbed.tickets = Array.from(new Set([...selectedEmbed.tickets, ...choices]));
             // Salva as mudanças no arquivo de embeds
             fs.writeFileSync(embedPath, JSON.stringify(embedJson, null, 4), 'utf-8');
             // Atualiza a mensagem do embed no Discord
             const embed = createEmbed({
                 title: embedChoiceName,
                 description: `Os seguintes tickets foram atribuídos ao embed:`,
-                fields: selectedEmbed.tickets.flat().map(ticket => ({
+                fields: selectedEmbed.tickets.map(ticket => ({
                     name: ticket,
                     value: `Atribuído com sucesso`,
                     inline: true,
                 })),
                 color: settings.colors.success,
             });
+            //avisar no canal de logs
+            logChannel(interaction, "Embed atualizado", `Foi atribuido os tickets \`${choices.join("`, `")}\` ao embed ${embedChoiceName}`, interaction.user.username, interaction.user.displayAvatarURL({ size: 128 }));
             return interaction.update({
                 embeds: [embed],
                 components: [], // Remove os menus de seleção após a atualização

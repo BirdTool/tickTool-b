@@ -80,7 +80,7 @@ createResponder({
                     const fieldContentTicketIndex = fields.findIndex(f => f.name === "Conteúdo do ticket ao abrir");
                     const fieldEmbedTicketIndex = fields.findIndex(f => f.name === "Embed do ticket ao abrir");
                     // Obter os valores dos campos ou uma string padrão
-                    const fieldContentTicketValue = fieldContentTicketIndex !== -1 ? fields[fieldContentTicketIndex].value : "<@${interaction.user.id}> Bem vindo ao ticket!";
+                    const fieldContentTicketValue = fieldContentTicketIndex !== -1 ? fields[fieldContentTicketIndex].value : "{user} Bem vindo ao ticket!";
                     const fieldEmbedTicketValue = fieldEmbedTicketIndex !== -1 ? fields[fieldEmbedTicketIndex].value : "embed1";
                     return interaction.showModal({
                         customId: "tickets/add/manage/contentOpenModal",

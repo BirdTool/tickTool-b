@@ -296,7 +296,8 @@ createResponder({
                     author: embed.data.author,
                     thumbnail: embed.data.thumbnail,
                     image: embed.data.image,
-                    timestamp: embed.data.timestamp
+                    timestamp: embed.data.timestamp,
+                    tickets: []
                 };
                 const __filename = fileURLToPath(import.meta.url);
                 const __dirname = path.dirname(__filename);
