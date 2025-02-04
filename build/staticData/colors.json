@@ -1,0 +1,9 @@
+[
+    ["vermelho", { "muito claro": "#ffbcbc", "claro": "#f77979", "": "#ff0000", "escuro": "#870000", "muito escuro": "#520000" }, "🔴"],
+    ["azul", { "muito claro": "#b3d9ff", "claro": "#66b3ff", "": "#0000ff", "escuro": "#000087", "muito escuro": "#000052" }, "🔵"],
+    ["verde", { "muito claro": "#b3ffb3", "claro": "#66ff66", "": "#00ff00", "escuro": "#008700", "muito escuro": "#005200" }, "🟢"],
+    ["amarelo", { "muito claro": "#ffffb3", "claro": "#ffff66", "": "#ffff00", "escuro": "#878700", "muito escuro": "#525200" }, "🟡"],
+    ["roxo", { "muito claro": "#e6b3ff", "claro": "#cc66ff", "": "#800080", "escuro": "#4d004d", "muito escuro": "#2e002e" }, "🟣"],
+    ["laranja", { "muito claro": "#ffd9b3", "claro": "#ffb366", "": "#ff8000", "escuro": "#874d00", "muito escuro": "#523000" }, "🟠"],
+    ["marrom", { "muito claro": "#bfa280", "claro": "#a87f5e", "": "#583f2f", "escuro": "#321b09", "muito escuro": "#1d0a00" }, "🟤"]
+]
