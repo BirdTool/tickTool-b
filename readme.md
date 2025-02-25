@@ -29,14 +29,6 @@ o site é https://discord.com/developers/applications
 
 especificamente na area bot, clique em "bot" e depois em "Privileged Gateway Intents" e ative os intents.
 
----
-
-Não consegue modificar arquivo .env? troque no package.json     "start": "node --env-file env.txt ./build/index.js",
-
-assim é apenas você criar um arquivo env.txt e seguir o que env.example pede
-
----
-
 ## Assim que estiver tudo funcionando, e o bot reconhecer seu id
 
 use /dashboard para configurar o bot.
