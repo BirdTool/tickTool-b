@@ -55,6 +55,11 @@ No linux se você baixar a versão `tar.gz` não será necessário o descompacta
 
 ## Instrução de uso
 
+#### Como ligar
+1. Coloque o seu token no arquivo `env.txt`.
+2. Use `npm install` para instalar as dependências.
+3. Use `npm run start` para ligar o bot.
+
 Assim que ligado, o bot reconhecerá seu id na primeira ligação, caso contrário, modifique manualmente a database ou crie uma [issues](https://github.com/BirdTool/tickTool-b/issues) pedindo ajuda.
 
 Use `/dashboard` para ver o que você pode fazer.
