@@ -1,46 +1,41 @@
 import { createResponder, ResponderType } from "#base";
 import { settings } from "#settings";
 import { createEmbed, createRow } from "@magicyan/discord";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
-import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, EmbedBuilder, StringSelectMenuBuilder } from "discord.js";
+import { ButtonBuilder, ButtonStyle, ChannelSelectMenuBuilder, ChannelType, EmbedBuilder, StringSelectMenuBuilder } from "discord.js";
 import { logChannel } from "../../functions/log.js";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { db } from "#database";
 createResponder({
     customId: "send/embed/:stap",
     types: [ResponderType.Button, ResponderType.StringSelect, ResponderType.ChannelSelect], cache: "cached",
     async run(interaction, { stap }) {
-        const embedPath = path.resolve(__dirname, '../data/embeds.json');
-        const embedJson = JSON.parse(fs.readFileSync(embedPath, 'utf-8'));
+        const embedJson = await db.guilds.get("embeds") || [];
         if (interaction.isButton()) {
             switch (stap) {
                 case "optionsEmbed": {
-                    const getEmbeds = Object.keys(embedJson); // pega todos os embeds
+                    const getEmbeds = embedJson;
                     const embed = createEmbed({
                         title: `Enviando embed`,
                         description: `Selecione qual embed deseja enviar`,
                         color: settings.colors.green
                     });
-                    const selectMenuOptions = getEmbeds.map(name => ({
-                        label: name,
-                        value: name,
+                    const options = (getEmbeds).map(name => ({
+                        label: name.name,
+                        value: name.name,
                         emoji: "📜"
                     }));
                     const row = createRow(new StringSelectMenuBuilder({
                         customId: "send/embed/choiceEmbed",
                         placeholder: "Selecione o embed que deseja enviar",
-                        options: selectMenuOptions
+                        options
                     }));
                     return interaction.update({ embeds: [embed], components: [row] });
                 }
                 case "sendNormal": {
                     const embedChoiceName = interaction.message.embeds[0]?.fields[0]?.value; // pegar a escolha do usuário
-                    if (!embedChoiceName || !(embedChoiceName in embedJson)) {
+                    if (!embedChoiceName || !embedJson.some(embed => embed.name === embedChoiceName)) {
                         return interaction.reply({
                             content: `Embed "${embedChoiceName}" não encontrado.`,
-                            ephemeral: true,
+                            flags
                         });
                     }
                     ;
@@ -53,19 +48,27 @@ createResponder({
                     const row = createRow(new ChannelSelectMenuBuilder({
                         customId: "send/embed/channel",
                         placeholder: "Selecione o canal para enviar o embed",
+                        channelTypes: [ChannelType.GuildText]
                     }));
                     return interaction.update({ embeds: [embed], components: [row] });
                 }
                 case "sendWithTicket": {
                     const embedChoiceName = interaction.message.embeds[0]?.fields[0]?.value; // pegar a escolha do usuário
-                    if (!embedChoiceName || !(embedChoiceName in embedJson)) {
+                    if (!embedChoiceName || !embedJson.some(embed => embed.name === embedChoiceName)) {
                         return interaction.reply({
                             content: `Embed "${embedChoiceName}" não encontrado.`,
-                            ephemeral: true,
+                            flags
                         });
                     }
                     ;
-                    const hasTicket = Array.isArray(embedJson[embedChoiceName]?.tickets) && embedJson[embedChoiceName].tickets.length > 0;
+                    const embedChoice = embedJson.find(embed => embed.name === embedChoiceName);
+                    if (!embedChoice) {
+                        return interaction.reply({
+                            content: `Embed "${embedChoiceName}" não encontrado.`,
+                            flags
+                        });
+                    }
+                    const hasTicket = embedChoice ? Array.isArray(embedChoice.tickets) && embedChoice.tickets.length > 0 : false;
                     if (!hasTicket) {
                         return interaction.reply("Este embed não tem tickets registrados!");
                     }
@@ -79,6 +82,7 @@ createResponder({
                     const row = createRow(new ChannelSelectMenuBuilder({
                         customId: "send/embed/channelTicket",
                         placeholder: "Selecione o canal para enviar o embed",
+                        channelTypes: [ChannelType.GuildText]
                     }));
                     return interaction.update({ embeds: [embed], components: [row] });
                 }
@@ -98,8 +102,14 @@ createResponder({
                         fields: [{ name: `Embed escolhido`, value: choice, inline: true }],
                         color: settings.colors.green
                     });
-                    // verificar se existe tickets no embed
-                    const hasTicket = Array.isArray(embedJson[choice]?.tickets) && embedJson[choice].tickets.length > 0;
+                    const embedChoice = embedJson.find(embed => embed.name === choice);
+                    if (!embedChoice) {
+                        return interaction.reply({
+                            content: `Embed "${choice}" não encontrado.`,
+                            flags
+                        });
+                    }
+                    const hasTicket = embedChoice ? Array.isArray(embedChoice.tickets) && embedChoice.tickets.length > 0 : false;
                     const hasTicketInvert = hasTicket === true ? false : true; // inverter o booleano de hasTicket
                     const row = createRow(new ButtonBuilder({
                         customId: "send/embed/sendNormal",
@@ -119,14 +129,20 @@ createResponder({
             switch (stap) {
                 case "channel": {
                     const embedChoiceName = interaction.message.embeds[0]?.fields[0]?.value; // pegar a escolha do usuário
-                    if (!embedChoiceName || !(embedChoiceName in embedJson)) {
+                    if (!embedChoiceName || !embedJson.some(embed => embed.name === embedChoiceName)) {
                         return interaction.reply({
                             content: `Embed "${embedChoiceName}" não encontrado.`,
-                            ephemeral: true,
+                            flags
                         });
                     }
                     ;
-                    const embedChoice = embedJson[embedChoiceName];
+                    const embedChoice = embedJson.find(embed => embed.name === embedChoiceName);
+                    if (!embedChoice) {
+                        return interaction.reply({
+                            content: `Embed "${embedChoiceName}" não encontrado.`,
+                            flags
+                        });
+                    }
                     const choice = interaction.values[0]; // canal escolhido pelo usuário
                     const channel = interaction.guild?.channels.cache.get(choice);
                     // Verifica se o canal é um canal de texto
@@ -151,16 +167,20 @@ createResponder({
                     return interaction.update({ content: `Embed enviado com sucesso no canal <#${choice}>!`, embeds: [], components: [] });
                 }
                 case "channelTicket": {
-                    const configPath = path.resolve(__dirname, '../data/config.json');
-                    const configJson = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
                     const embedChoiceName = interaction.message.embeds[0]?.fields[0]?.value; // Pega a escolha do usuário
-                    if (!embedChoiceName || !(embedChoiceName in embedJson)) {
+                    if (!embedChoiceName || !embedJson.some(embed => embed.name === embedChoiceName)) {
                         return interaction.reply({
                             content: `Embed "${embedChoiceName}" não encontrado.`,
                             flags,
                         });
                     }
-                    const embedChoice = embedJson[embedChoiceName];
+                    const embedChoice = embedJson.find(embed => embed.name === embedChoiceName);
+                    if (!embedChoice) {
+                        return interaction.reply({
+                            content: `Embed "${embedChoiceName}" não encontrado.`,
+                            flags,
+                        });
+                    }
                     const choice = interaction.values[0]; // Canal escolhido pelo usuário
                     const channel = interaction.guild?.channels.cache.get(choice);
                     // Verifica se o canal é um canal de texto
@@ -177,45 +197,45 @@ createResponder({
                         .setAuthor({ name: embedChoice.author?.name ?? null, iconURL: embedChoice.author?.icon_url ?? null, url: embedChoice.author?.url ?? null })
                         .setThumbnail(embedChoice.thumbnail?.url ?? null)
                         .setImage(embedChoice.image?.url ?? null);
-                    if (!configJson.ticketsManage || Object.keys(configJson.ticketsManage).length === 0) {
-                        return interaction.reply({ content: "Configuração de tickets não encontrada.", flags });
-                    }
-                    const tickets = embedChoice.tickets;
+                    const tickets = embedChoice.tickets || [];
                     let componentsMenu;
                     if (tickets?.length === 1) {
-                        const ticketDetails = configJson.ticketsManage[tickets[0]];
+                        const ticketsDB = await db.guilds.get("tickets") || [];
+                        const ticketDetails = ticketsDB[0];
                         if (!ticketDetails) {
                             return interaction.reply({ content: `Detalhes do ticket "${tickets[0]}" não encontrados.`, flags });
                         }
-                        componentsMenu = new ActionRowBuilder().addComponents(new ButtonBuilder()
-                            .setLabel(ticketDetails.labelMenu)
-                            .setCustomId(`open-ticket/button/${tickets[0]}`)
-                            .setStyle(ButtonStyle.Success)
-                            .setEmoji(ticketDetails.emojiMenu ?? undefined));
+                        componentsMenu = createRow(new ButtonBuilder({
+                            label: ticketDetails.labelMenu,
+                            customId: `open-ticket/button/${tickets[0]}`,
+                            style: ButtonStyle.Success,
+                            emoji: ticketDetails.emojiMenu ?? undefined
+                        }));
                     }
                     else if (tickets?.length > 1) {
-                        const menuOptions = tickets
-                            .map(ticketName => {
-                            const ticketDetails = configJson.ticketsManage[ticketName];
+                        const options = await Promise.all(tickets
+                            .map(async (ticketName) => {
+                            const ticketsDB = await db.guilds.get("tickets") || [];
+                            const ticketDetails = ticketsDB.find(ticket => ticketName.includes(ticket.ticketname));
                             if (!ticketDetails) {
                                 console.warn(`Detalhes do ticket "${ticketName}" não encontrados.`);
                                 return null;
                             }
                             return {
                                 label: ticketDetails.labelMenu,
-                                value: ticketName,
+                                value: ticketName.toString(),
                                 description: ticketDetails.descriptionMenu ?? undefined,
                                 emoji: ticketDetails.emojiMenu ?? undefined,
                             };
-                        })
-                            .filter(option => option !== null); // Remove tickets inválidos
-                        if (menuOptions.length === 0) {
+                        })).then(options => options.filter(option => option !== null)); // Remove tickets inválidos
+                        if (options.length === 0) {
                             return interaction.reply({ content: "Nenhum ticket válido encontrado para o embed.", flags });
                         }
-                        componentsMenu = new ActionRowBuilder().addComponents(new StringSelectMenuBuilder()
-                            .setCustomId("open-ticket/select")
-                            .setPlaceholder("Selecione um ticket")
-                            .addOptions(menuOptions));
+                        componentsMenu = createRow(new StringSelectMenuBuilder({
+                            customId: "open-ticket/select",
+                            placeholder: "Selecione um ticket",
+                            options
+                        }));
                     }
                     else {
                         return interaction.reply({ content: "Nenhum ticket encontrado para este embed.", flags });

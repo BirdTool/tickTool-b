@@ -1,18 +1,13 @@
 import { createResponder, ResponderType } from "#base";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
 import { createEmbed } from "@magicyan/discord";
 import { menus } from "#menus";
+import { db } from "#database";
 createResponder({
     customId: "manage/embeds/select",
     types: [ResponderType.StringSelect], cache: "cached",
     async run(interaction) {
-        const __filename = fileURLToPath(import.meta.url);
-        const __dirname = path.dirname(__filename);
-        const embedPath = path.resolve(__dirname, '../../data/embeds.json');
-        const embedJson = JSON.parse(fs.readFileSync(embedPath, 'utf-8'));
-        const embed = embedJson[interaction.values[0]];
+        const embeds = await db.guilds.get("embeds") || [];
+        const embed = embeds.find(embed => embed.name === interaction.values[0]);
         if (!embed)
             return interaction.reply({ content: "Embed não encontrado.", ephemeral: true });
         // atualizar o embed atual para o embed selecionado

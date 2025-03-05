@@ -1,14 +1,11 @@
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
 import { createEmbed } from "@magicyan/discord";
 import { settings } from "#settings";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+import { db } from "#database";
 export async function logChannel(interaction, title, description, author, authorURL) {
-    const configPath = path.resolve(__dirname, '../discord/data/config.json');
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    const channel = await interaction.client.channels.fetch(config.logsChannelID);
+    const logChannel = await db.guilds.get("logsChannel");
+    if (!logChannel)
+        return console.error(`Não foi encontrado um canal para enviar as logs, informações das logs: title: ${title}, description: ${description}, author: ${author}`);
+    const channel = await interaction.client.channels.fetch(logChannel);
     if (!channel?.isTextBased())
         return;
     const embed = createEmbed({

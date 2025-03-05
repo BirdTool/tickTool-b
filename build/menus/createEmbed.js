@@ -41,7 +41,7 @@ export function createEmbedMenu() {
         label: "Salvar",
         style: ButtonStyle.Success
     }), new ButtonBuilder({
-        customId: "dashboard/return/manageEmbeds",
+        customId: "return/manageEmbeds",
         emoji: '↩️',
         style: ButtonStyle.Secondary
     }));

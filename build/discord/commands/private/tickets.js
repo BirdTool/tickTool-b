@@ -4,7 +4,7 @@ import { menus } from "#menus";
 import path from "path";
 import { fileURLToPath } from "url";
 import fs from "fs";
-import { isStaff } from "../../../functions/isStaff.js";
+import Staff from "../../../class/staff.js";
 createCommand({
     name: "ticket",
     description: "gerenciar tickets",
@@ -22,7 +22,8 @@ createCommand({
     ],
     type: ApplicationCommandType.ChatInput,
     async run(interaction) {
-        if (!isStaff(interaction.user.id, "admin")) {
+        const staff = new Staff(interaction);
+        if (!staff.hasPosition(interaction.user.id, false, "admin")) {
             return interaction.reply({ content: `Você precisa ser um admin ou superior para gerenciar tickets`, flags });
         }
         switch (interaction.options.getSubcommand()) {

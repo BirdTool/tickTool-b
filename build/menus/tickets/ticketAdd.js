@@ -19,17 +19,13 @@ export function ticketAddMenu() {
         customId: "tickets/add/manage/contentOpen",
         label: "Conteúdo ao abrir ticket",
         style: ButtonStyle.Secondary
-    }), new ButtonBuilder({
-        customId: "tickets/add/manage/contentClose",
-        label: "Conteúdo ao fechar",
-        style: ButtonStyle.Danger
     }));
     const row2 = createRow(new ButtonBuilder({
         customId: "tickets/add/manage/saveTicket",
         label: `Salvar ticket`,
         style: ButtonStyle.Success
     }), new ButtonBuilder({
-        customId: "dashboard/return/tickets",
+        customId: "return/tickets",
         emoji: '↩️',
         style: ButtonStyle.Secondary
     }));

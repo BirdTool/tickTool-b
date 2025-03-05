@@ -63,5 +63,5 @@ export async function baseResponderHandler(interaction) {
 export function baseResponderLog(customId, type) {
     const u = ck.underline;
     baseStorage.loadLogs.responders
-        .push(ck.white(spaceBuilder(u.white(type), u.hex("#ff76a8")(customId), "responder loaded!")));
+        .push(ck.green(spaceBuilder(u.greenBright(type), u.blue(customId), "responder loaded!")));
 }

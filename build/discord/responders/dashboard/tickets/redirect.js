@@ -3,9 +3,7 @@ import { menus } from "#menus";
 import { settings } from "#settings";
 import { createEmbed, createRow } from "@magicyan/discord";
 import { StringSelectMenuBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
+import { db } from "#database";
 createResponder({
     customId: "tickets/manage/:action",
     types: [ResponderType.Button, ResponderType.StringSelect], cache: "cached",
@@ -16,18 +14,15 @@ createResponder({
                     return interaction.update(menus.ticketsAdd());
                 }
                 case "edit": {
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/config.json');
-                    const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
                     // Verifica se há tickets no arquivo de configuração
-                    if (!config.ticketsManage || Object.keys(config.ticketsManage).length === 0) {
+                    const tickets = await db.guilds.get("tickets") || [];
+                    if (!tickets || tickets.length === 0) {
                         return interaction.reply({ content: "Não há tickets cadastrados, aperte no botão de adicionar ticket", flags });
                     }
-                    const tickets = Object.entries(config.ticketsManage);
                     // Se houver apenas um ticket
                     if (tickets.length === 1) {
-                        const [ticketName, ticketDetails] = tickets[0];
+                        const ticketDetails = tickets[0];
+                        const ticketName = ticketDetails.ticketname;
                         const fields = [
                             { name: "Nome do ticket", value: String(ticketName), inline: true },
                             { name: "Nome do ticket no menu", value: String(ticketDetails.labelMenu), inline: true },
@@ -45,10 +40,10 @@ createResponder({
                         return interaction.update({ embeds: [embed], components: menus.ticketsAdd().components });
                     }
                     // Se houver mais de um ticket
-                    const options = tickets.map(([ticketName, ticketDetails]) => {
+                    const options = tickets.map((ticketDetails) => {
                         const option = {
                             label: String(ticketDetails.labelMenu),
-                            value: String(ticketName),
+                            value: String(ticketDetails.ticketname),
                         };
                         if (ticketDetails.descriptionMenu) {
                             option.description = String(ticketDetails.descriptionMenu);
@@ -71,24 +66,19 @@ createResponder({
                     return interaction.update({ embeds: [embed], components: [row] });
                 }
                 case "del": {
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/config.json');
-                    const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+                    const tickets = await db.guilds.get("tickets") || [];
                     // Verifica se há tickets no arquivo de configuração
-                    if (!config.ticketsManage || Object.keys(config.ticketsManage).length === 0) {
-                        return interaction.reply({ content: "Não há tickets cadastrados. Aperte no botão de adicionar ticket.", ephemeral: true });
+                    if (!tickets || tickets.length === 0) {
+                        return interaction.reply({ content: "Não há tickets cadastrados. Aperte no botão de adicionar ticket.", flags });
                     }
-                    const tickets = Object.entries(config.ticketsManage);
                     if (tickets.length === 1) {
-                        delete config.ticketsManage[tickets[0][0]];
-                        fs.writeFileSync(filePath, JSON.stringify(config, null, 4), 'utf-8');
+                        tickets.splice(0, 1);
                         return interaction.reply({ content: "O seu único ticket existente foi deletado com sucesso!" });
                     }
                     const options = tickets
-                        .map(([ticketName, ticketDetails]) => {
+                        .map((ticketDetails) => {
                         // Validações de tamanho e conteúdo
-                        if (!ticketName || ticketName.length > 100 || // Nome inválido
+                        if (!ticketDetails.ticketname || ticketDetails.ticketname.length > 100 || // Nome inválido
                             !ticketDetails.labelMenu || ticketDetails.labelMenu.length > 100 || // Label inválido
                             (ticketDetails.descriptionMenu && ticketDetails.descriptionMenu.length > 100) // Descrição longa demais
                         ) {
@@ -96,7 +86,7 @@ createResponder({
                         }
                         const option = {
                             label: String(ticketDetails.labelMenu).slice(0, 100),
-                            value: String(ticketName).slice(0, 100),
+                            value: String(ticketDetails.ticketname).slice(0, 100),
                         };
                         if (ticketDetails.descriptionMenu) {
                             option.description = String(ticketDetails.descriptionMenu).slice(0, 100);
@@ -111,7 +101,7 @@ createResponder({
                     if (options.length === 0) {
                         return interaction.reply({
                             content: "Nenhum ticket válido foi encontrado para deletar.",
-                            ephemeral: true,
+                            flags
                         });
                     }
                     // Limita o número de opções a 25
@@ -130,14 +120,17 @@ createResponder({
                     return interaction.update({ embeds: [embed], components: [row] });
                 }
                 case "atribuir": {
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/embeds.json');
-                    const embed = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                    const embeds = Object.keys(embed);
-                    const selectMenuOptions = embeds.map(name => ({
-                        label: name,
-                        value: name,
+                    const embeds = await db.guilds.get("embeds") || [];
+                    const tickets = await db.guilds.get("tickets") || [];
+                    if (tickets.length === 0) {
+                        return interaction.reply({ content: "Nenhum ticket foi encontrado.", flags });
+                    }
+                    if (!embeds || embeds.length === 0) {
+                        return interaction.reply({ content: "Nenhum embed foi encontrado.", flags });
+                    }
+                    const selectMenuOptions = embeds.map(embed => ({
+                        label: embed.name,
+                        value: embed.name,
                         emoji: "📜"
                     }));
                     const row = createRow(new StringSelectMenuBuilder({
@@ -146,7 +139,7 @@ createResponder({
                         options: selectMenuOptions
                     }));
                     const button = createRow(new ButtonBuilder({
-                        customId: "dashboard/return/tickets",
+                        customId: "return/tickets",
                         emoji: '↩️',
                         style: ButtonStyle.Secondary
                     }));
@@ -163,15 +156,12 @@ createResponder({
             switch (action) {
                 case "editChoice": {
                     const choice = interaction.values[0]; // Valor escolhido no menu
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/config.json');
-                    const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                    if (!config.ticketsManage || Object.keys(config.ticketsManage).length === 0) {
+                    const tickets = await db.guilds.get("tickets") || [];
+                    if (!tickets || tickets.length === 0) {
                         return interaction.reply({ content: "Não há tickets cadastrados, aperte no botão de adicionar ticket", ephemeral: true });
                     }
                     // Busca o ticket selecionado
-                    const ticketDetails = config.ticketsManage[choice];
+                    const ticketDetails = tickets.find(ticket => ticket.ticketname === choice);
                     if (!ticketDetails) {
                         return interaction.reply({ content: "O ticket selecionado não foi encontrado.", ephemeral: true });
                     }
@@ -195,24 +185,15 @@ createResponder({
                 }
                 case "deleteChoice": {
                     const choices = interaction.values; // Obtem as escolhas do usuário (array de valores)
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/config.json');
-                    const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                    if (!config.ticketsManage || Object.keys(config.ticketsManage).length === 0) {
+                    const tickets = await db.guilds.get("tickets") || [];
+                    if (!tickets || tickets.length === 0) {
                         return interaction.reply({
                             content: "Não há tickets cadastrados. Aperte no botão de adicionar ticket.",
                             flags
                         });
                     }
-                    // Deleta os tickets selecionados
-                    choices.forEach(choice => {
-                        if (config.ticketsManage && config.ticketsManage[choice]) {
-                            delete config.ticketsManage[choice];
-                        }
-                    });
-                    // Salva as alterações no arquivo
-                    fs.writeFileSync(filePath, JSON.stringify(config, null, 4));
+                    const newTickets = tickets.filter(ticket => !choices.includes(ticket.ticketname));
+                    await db.guilds.set("tickets", newTickets);
                     return interaction.reply({ content: `Os tickets selecionados (${choices.join(', ')}) foram deletados com sucesso.`, flags });
                 }
             }

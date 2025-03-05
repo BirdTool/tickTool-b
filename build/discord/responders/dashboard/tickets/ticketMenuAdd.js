@@ -2,9 +2,7 @@ import { createResponder, ResponderType } from "#base";
 import { menus } from "#menus";
 import { createModalFields } from "@magicyan/discord";
 import { EmbedBuilder, TextInputStyle } from "discord.js";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
+import { db } from "#database";
 createResponder({
     customId: "tickets/add/manage/:action",
     types: [ResponderType.Button, ResponderType.ModalComponent], cache: "cached",
@@ -46,7 +44,7 @@ createResponder({
                             },
                             emoji: {
                                 label: "Emoji do ticket no menu",
-                                placeholder: "Emoji do ticket no menu aqui ex:(🚩 ou :triangular_flag_on_post:)",
+                                placeholder: "Emoji do ticket no menu aqui ex:(🚩)",
                                 style: TextInputStyle.Short,
                                 required: false,
                                 maxLength: 40,
@@ -104,34 +102,6 @@ createResponder({
                         }),
                     });
                 }
-                case "contentClose": {
-                    const fieldContentTicketIndex = fields.findIndex(f => f.name === "Conteúdo do ticket ao fechar");
-                    const fieldEmbedTicketIndex = fields.findIndex(f => f.name === "Embed do ticket ao fechar");
-                    // Obter os valores dos campos ou uma string padrão
-                    const fieldContentTicketValue = fieldContentTicketIndex !== -1 ? fields[fieldContentTicketIndex].value : "Tem certeza que deseja fechar o ticket?";
-                    const fieldEmbedTicketValue = fieldEmbedTicketIndex !== -1 ? fields[fieldEmbedTicketIndex].value : "embed2";
-                    return interaction.showModal({
-                        customId: "tickets/add/manage/contentCloseModal",
-                        title: "Conteúdo",
-                        components: createModalFields({
-                            content: {
-                                label: "Conteúdo ao fechar ticket",
-                                placeholder: "Conteúdo do ticket aqui",
-                                style: TextInputStyle.Paragraph,
-                                required: false,
-                                maxLength: 1500,
-                                value: fieldContentTicketValue
-                            },
-                            embed: {
-                                label: "Embed ao fechar ticket",
-                                placeholder: "Nome do embed aqui ex:(embed1)",
-                                style: TextInputStyle.Short,
-                                required: false,
-                                value: fieldEmbedTicketValue
-                            },
-                        }),
-                    });
-                }
                 case "saveTicket": {
                     const fieldNameTicket = fields.findIndex(f => f.name === "Nome do ticket");
                     const fieldLabelTicket = fields.findIndex(f => f.name === "Nome do ticket no menu");
@@ -139,12 +109,9 @@ createResponder({
                     const fieldEmojiTicket = fields.findIndex(f => f.name === "Emoji do ticket");
                     const fieldEmbedOpenTicket = fields.findIndex(f => f.name === "Embed do ticket ao abrir");
                     const fieldContentOpenTicket = fields.findIndex(f => f.name === "Conteúdo do ticket ao abrir");
-                    const fieldEmbedCloseTicket = fields.findIndex(f => f.name === "Embed do ticket ao fechar");
-                    const fieldContentCloseTicket = fields.findIndex(f => f.name === "Conteúdo do ticket ao fechar");
                     // Validação: Verifica se ao menos um conteúdo ou embed está presente para abrir ou fechar o ticket
-                    if ((fieldEmbedOpenTicket === -1 && fieldContentOpenTicket === -1) ||
-                        (fieldEmbedCloseTicket === -1 && fieldContentCloseTicket === -1)) {
-                        return interaction.reply({ flags, content: `É necessário ao menos um conteúdo ou embed para abrir ou fechar o ticket.` });
+                    if ((fieldEmbedOpenTicket === -1 && fieldContentOpenTicket === -1)) {
+                        return interaction.reply({ flags, content: `É necessário ao menos um conteúdo ou embed para abrir o ticket` });
                     }
                     // Validação: Verifica se o nome do ticket no menu foi fornecido
                     if (fieldLabelTicket === -1) {
@@ -154,16 +121,6 @@ createResponder({
                     if (fieldNameTicket === -1) {
                         return interaction.reply({ flags, content: `É necessário fornecer o nome do ticket!` });
                     }
-                    // Caminho e leitura do arquivo JSON
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/config.json');
-                    const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                    // Inicializa ticketsManage caso não exista
-                    if (!config.ticketsManage) {
-                        config.ticketsManage = {};
-                    }
-                    ;
                     // Obtenção dos valores dos campos
                     const ticketname = fields[fieldNameTicket]?.value;
                     const labelMenu = fields[fieldLabelTicket]?.value;
@@ -171,8 +128,6 @@ createResponder({
                     const emojiMenu = fieldEmojiTicket !== -1 ? fields[fieldEmojiTicket]?.value : undefined;
                     const ticketMessage = fieldContentOpenTicket !== -1 ? fields[fieldContentOpenTicket]?.value : undefined;
                     const embedMessage = fieldEmbedOpenTicket !== -1 ? fields[fieldEmbedOpenTicket]?.value : undefined;
-                    const closeTicketMessage = fieldContentCloseTicket !== -1 ? fields[fieldContentCloseTicket]?.value : undefined;
-                    const closeTicketEmbedMessage = fieldEmbedCloseTicket !== -1 ? fields[fieldEmbedCloseTicket]?.value : undefined;
                     // Criação do objeto TicketDetails
                     const newTicket = {
                         ticketname,
@@ -181,13 +136,10 @@ createResponder({
                         emojiMenu,
                         ticketMessage,
                         embedMessage,
-                        closeTicketMessage,
-                        closeTicketEmbedMessage,
                     };
-                    // Salva o ticket no JSON
-                    config.ticketsManage[ticketname] = newTicket;
-                    // Escreve de volta no arquivo JSON
-                    fs.writeFileSync(filePath, JSON.stringify(config, null, 4), 'utf-8');
+                    const tickets = await db.guilds.get("tickets") || [];
+                    tickets.push(newTicket);
+                    await db.guilds.set("tickets", tickets);
                     // Responde ao usuário
                     return interaction.update({ content: `O ticket "${ticketname}" foi salvo com sucesso!`, embeds: [], components: [] });
                 }
@@ -238,18 +190,9 @@ createResponder({
                     return interaction.update({ embeds: [embed], components: menus.ticketsAdd().components });
                 }
                 case "nameModal": {
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/config.json');
-                    const config = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+                    const tickets = await db.guilds.get("tickets") || [];
                     const name = interaction.fields.getTextInputValue("name");
-                    if (!config.ticketsManage) {
-                        config.ticketsManage = {};
-                        console.log(`ticketsManage não existia. Criado como objeto vazio.`);
-                        fs.writeFileSync(filePath, JSON.stringify(config, null, 4), 'utf-8'); // escrever o arquivo caso ticketsManage não exista
-                    }
-                    ;
-                    if (name in config.ticketsManage) {
+                    if (tickets.includes(ticket => ticket.ticketname === name)) {
                         return interaction.reply({ flags, content: `Um ticket com o nome "${name}" já existe! Tente outro nome.` });
                     }
                     ;
@@ -265,97 +208,49 @@ createResponder({
                     return interaction.update({ embeds: [embed], components: menus.ticketsAdd().components });
                 }
                 case "contentOpenModal": {
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/embeds.json');
-                    const embedFile = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+                    const embeds = await db.guilds.get("embeds") || [];
                     const content = interaction.fields.getTextInputValue("content");
                     const embedChoice = interaction.fields.getTextInputValue("embed");
                     const fieldContentTicket = fields.findIndex(f => f.name === "Conteúdo do ticket ao abrir");
                     const fieldEmbedTicket = fields.findIndex(f => f.name === "Embed do ticket ao abrir");
                     if (!embedChoice && !content) {
-                        return interaction.reply({ content: `O conteúdo do ticket ao abrir não pode ser vazio! forneça um conteúdo ou embed.`, flags });
+                        return interaction.reply({ content: `O conteúdo do ticket ao abrir não pode ser vazio! Forneça um conteúdo ou embed.`, flags });
                     }
-                    ;
                     if (embedChoice) {
-                        if (!embedFile[embedChoice]) {
-                            return interaction.reply({ content: `O embed ${embedChoice} não existe! tente novamente.`, flags });
+                        // Verifica se o embed existe
+                        const embedExists = embeds.some(embed => embed.name === embedChoice);
+                        if (!embedExists) {
+                            return interaction.reply({ content: `O embed ${embedChoice} não existe! Tente novamente.`, flags });
                         }
-                        ;
-                        if (fieldEmbedTicket !== -1) { // substitui o field
-                            fields[fieldEmbedTicket].value = embedChoice;
+                        // Atualiza ou cria o field do embed
+                        if (fieldEmbedTicket !== -1) {
+                            fields[fieldEmbedTicket].value = embedChoice; // Substitui o field
                         }
-                        else { // cria o field
-                            fields.push({ name: "Embed do ticket ao abrir", value: embedChoice, inline: true });
+                        else {
+                            fields.push({ name: "Embed do ticket ao abrir", value: embedChoice, inline: true }); // Cria o field
                         }
-                        ;
                     }
                     else if (fieldEmbedTicket !== -1) {
-                        fields.splice(fieldEmbedTicket, 1); // Remove a descrição se o valor estiver vazio
+                        fields.splice(fieldEmbedTicket, 1); // Remove o field se o valor estiver vazio
                     }
-                    ;
                     if (content) {
-                        if (fieldContentTicket !== -1) { // substitui o field
-                            fields[fieldContentTicket].value = embedChoice;
+                        // Atualiza ou cria o field do conteúdo
+                        if (fieldContentTicket !== -1) {
+                            fields[fieldContentTicket].value = content; // Substitui o field
                         }
-                        else { // cria o field
-                            fields.push({ name: "Conteúdo do ticket ao abrir", value: content, inline: true });
+                        else {
+                            fields.push({ name: "Conteúdo do ticket ao abrir", value: content, inline: true }); // Cria o field
                         }
-                        ;
                     }
                     else if (fieldContentTicket !== -1) {
-                        fields.splice(fieldContentTicket, 1); // Remove a descrição se o valor estiver vazio
+                        fields.splice(fieldContentTicket, 1); // Remove o field se o valor estiver vazio
                     }
-                    ;
-                    embed.setFields(fields); // setar o field
-                    return interaction.update({ embeds: [embed], components: menus.ticketsAdd().components });
-                }
-                case "contentCloseModal": {
-                    const __filename = fileURLToPath(import.meta.url);
-                    const __dirname = path.dirname(__filename);
-                    const filePath = path.resolve(__dirname, '../../../data/embeds.json');
-                    const embedFile = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-                    const content = interaction.fields.getTextInputValue("content");
-                    const embedChoice = interaction.fields.getTextInputValue("embed");
-                    const fieldContentTicket = fields.findIndex(f => f.name === "Conteúdo do ticket ao fechar");
-                    const fieldEmbedTicket = fields.findIndex(f => f.name === "Embed do ticket ao fechar");
-                    if (embedChoice) {
-                        if (!embedFile[embedChoice]) {
-                            return interaction.reply({ content: `O embed ${embedChoice} não existe! tente novamente.`, flags });
-                        }
-                        ;
-                        if (fieldEmbedTicket !== -1) { // substitui o field
-                            fields[fieldEmbedTicket].value = embedChoice;
-                        }
-                        else { // cria o field
-                            fields.push({ name: "Embed do ticket ao fechar", value: embedChoice, inline: true });
-                        }
-                        ;
-                    }
-                    else if (fieldEmbedTicket !== -1) {
-                        fields.splice(fieldContentTicket, 1); // Remove a descrição se o valor estiver vazio
-                    }
-                    ;
-                    if (content) {
-                        if (fieldContentTicket !== -1) { // substitui o field
-                            fields[fieldContentTicket].value = embedChoice;
-                        }
-                        else { // cria o field
-                            fields.push({ name: "Conteúdo do ticket ao fechar", value: content, inline: true });
-                        }
-                        ;
-                    }
-                    else if (fieldContentTicket !== -1) {
-                        fields.splice(fieldContentTicket, 1); // Remove a descrição se o valor estiver vazio
-                    }
-                    ;
-                    if (!embedChoice && !content) {
-                        return interaction.reply({ content: `O conteúdo do ticket ao fechar não pode ser vazio! forneça um conteúdo ou embed.`, flags });
-                    }
-                    embed.setFields(fields); // setar o field
+                    // Atualiza os fields do embed
+                    embed.setFields(fields);
+                    // Atualiza a interação com o novo embed e componentes
                     return interaction.update({ embeds: [embed], components: menus.ticketsAdd().components });
                 }
             }
         }
-    },
+    }
 });

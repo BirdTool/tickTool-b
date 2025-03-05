@@ -1,76 +1,35 @@
 import { ButtonBuilder, ButtonStyle } from "discord.js";
 import { createEmbed, createRow } from "@magicyan/discord";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
 import { settings } from "#settings";
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-export async function manageStaffMenu(guild) {
-    // Lê o arquivo de configuração toda vez que a função é chamada
-    const configPath = path.resolve(__dirname, '../../discord/data/config.json');
-    const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-    // Função para obter nomes de usuários por IDs
-    const getUsernames = async (ids) => {
-        const names = [];
-        for (const id of ids) {
-            try {
-                const member = await guild.members.fetch(id).catch(() => undefined);
-                names.push(member?.user.tag || `\`${id}\` (não encontrado)`);
-            }
-            catch {
-                names.push(`\`${id}\` (não encontrado)`);
-            }
-        }
-        return names;
+import { db } from "#database";
+import { createResponder, ResponderType } from "#base";
+import { menus } from "#menus";
+export async function manageStaffMenu() {
+    const roles = {
+        superAdmins: await db.guilds.get("superAdminRoles") || [],
+        admins: await db.guilds.get("adminRoles") || [],
+        moderators: await db.guilds.get("modRoles") || []
     };
-    // Obter nomes dos donos, admins e moderadores
-    const botOwner = (await guild.members.fetch(config.botOwnerID)).user.tag;
-    const superAdmins = await getUsernames(config.superAdmins);
-    const admins = await getUsernames(config.admins);
-    const moderators = await getUsernames(config.moderators);
-    // Criação do embed
     const embed = createEmbed({
         title: `Gerenciador de staffs`,
-        description: `Lista de staffs:`,
+        description: `Cargos de staff:`,
         fields: [
-            {
-                name: `Dono:`,
-                value: `\`${botOwner}\``,
-                inline: true
-            },
-            {
-                name: `Super Admins:`,
-                value: superAdmins.length > 0 ? `\`${superAdmins.join("\n")}\`` : "Nenhum",
-                inline: true
-            },
-            {
-                name: `Admins:`,
-                value: admins.length > 0 ? `\`${admins.join("\n")}\`` : "Nenhum",
-                inline: true
-            },
-            {
-                name: `Moderadores:`,
-                value: moderators.length > 0 ? `\`${moderators.join("\n")}\`` : "Nenhum",
-                inline: true
-            }
+            { name: "Super admins", inline: true, value: roles.superAdmins.length > 0 ? `<@&${roles.superAdmins.join('>, <@&')}>` : "`Nenhum`" },
+            { name: "Admins", inline: true, value: roles.admins.length > 0 ? `<@&${roles.admins.join('>, <@&')}>` : "`Nenhum`" },
+            { name: "Moderators", inline: true, value: roles.moderators.length > 0 ? `<@&${roles.moderators.join('>, <@&')}>` : "`Nenhum`" },
         ],
         color: settings.colors.danger
     });
     const row = createRow(new ButtonBuilder({
         customId: "manage/staffs/add",
-        label: "Adicionar um staff",
+        label: "Adicionar um cargo",
         style: ButtonStyle.Success
     }), new ButtonBuilder({
-        customId: "manage/staffs/edit",
-        label: "Editar posição de staff",
-        style: ButtonStyle.Primary
-    }), new ButtonBuilder({
         customId: "manage/staffs/remove",
-        label: "Remover um staff",
+        label: "Remover um cargo",
         style: ButtonStyle.Danger
     }), new ButtonBuilder({
-        customId: "dashboard/return/dashBoard",
+        customId: "return/dashboard",
         emoji: '↩️',
         style: ButtonStyle.Secondary
     }));
@@ -80,3 +39,21 @@ export async function manageStaffMenu(guild) {
         components: [row]
     };
 }
+// redirects
+createResponder({
+    customId: "manage/staffs/:redirect",
+    types: [ResponderType.Button], cache: "cached",
+    async run(interaction, { redirect }) {
+        switch (redirect) {
+            case "add": {
+                return interaction.update(menus.addStaff());
+            }
+            case "remove": {
+                return interaction.update(await menus.removeStaff(interaction));
+            }
+            default: {
+                return interaction.update(menus.dashBoard());
+            }
+        }
+    },
+});

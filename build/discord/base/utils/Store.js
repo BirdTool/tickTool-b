@@ -23,4 +23,7 @@ export class Store extends Map {
         }
         return this;
     }
+    get(key, fallback) {
+        return super.get(key) ?? fallback;
+    }
 }

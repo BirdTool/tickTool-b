@@ -23,7 +23,7 @@ export function ticketsMenu() {
         style: ButtonStyle.Primary
     }));
     const returnButton = createRow(new ButtonBuilder({
-        customId: "dashboard/return/dashBoard",
+        customId: "return/dashBoard",
         emoji: '↩️',
         style: ButtonStyle.Secondary
     }));

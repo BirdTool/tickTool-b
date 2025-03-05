@@ -1,73 +1,57 @@
 import { ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } from "discord.js";
 import { createEmbed, createRow } from "@magicyan/discord";
-import fs from "fs";
-import path from "path";
-import { fileURLToPath } from "url";
 import { settings } from "#settings";
-// Caminho para o arquivo JSON
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const getEmbeds = (option) => {
-    const filePath = path.resolve(__dirname, "../discord/data/embeds.json");
-    // Ler o arquivo JSON
-    const rawData = fs.readFileSync(filePath, "utf8");
-    const embeds = JSON.parse(rawData);
+import { db } from "#database";
+const getEmbeds = async (option) => {
+    const embeds = await db.guilds.get("embeds") || [];
     // Processar a saída com base na opção
     switch (option) {
         case "quantity":
-            return Object.keys(embeds).length;
+            return embeds.length; // Retorna o número de embeds
         case "listSelect":
-            return Object.keys(embeds);
+            return embeds.map(embed => embed.name || "Embed sem nome"); // Retorna um array de nomes dos embeds
         default:
             throw new Error("Opção inválida.");
     }
 };
-export function manageEmbedsMenu() {
+export async function manageEmbedsMenu() {
+    const embedQuantity = await getEmbeds("quantity"); // Aguarda a quantidade de embeds
+    const embedList = await getEmbeds("listSelect"); // Aguarda a lista de nomes dos embeds
     const embed = createEmbed({
         title: `Gerenciador de embeds`,
-        description: `você tem um total de: **${getEmbeds("quantity")}** embeds`,
+        description: `Você tem um total de: **${embedQuantity}** embeds`,
         color: settings.colors.green
     });
-    const selectMenuOptions = getEmbeds("listSelect").map(name => ({
+    const selectMenuOptions = embedList.map(name => ({
         label: name,
         value: name,
-        emoji: "📜" // Emoji opcional
+        emoji: "📜"
     }));
-    const buttons = createRow(new ButtonBuilder({
-        customId: "manage/embeds/criar",
-        label: "Criar novo embed",
-        style: ButtonStyle.Success
-    }), new ButtonBuilder({
-        customId: "send/embed/optionsEmbed",
-        label: "Enviar embed",
-        style: ButtonStyle.Success,
-        disabled: getEmbeds("quantity") === 0
-    }), new ButtonBuilder({
-        customId: "dashboard/return/dashBoard",
-        emoji: '↩️',
-        style: ButtonStyle.Secondary
-    }));
-    let selectMenu;
-    if (getEmbeds("quantity") > 0) {
-        selectMenu = createRow(new StringSelectMenuBuilder({
+    const components = [
+        createRow(new StringSelectMenuBuilder({
             customId: "manage/embeds/select",
             placeholder: "Selecione o embed que deseja modificar",
-            options: selectMenuOptions,
-            disabled: false
-        }));
-    }
-    else {
-        selectMenu = createRow(new StringSelectMenuBuilder({
-            customId: "manage/embeds/select",
-            placeholder: "Selecione o embed que deseja modificar",
-            options: [{ label: "O que está fazendo aqui?", value: "Não há embeds para selecionar" }],
-            disabled: true
-        }));
-    }
+            options: embedQuantity > 0 ? selectMenuOptions : [{ label: "Não há embeds para selecionar", value: "Não há embeds para selecionar" }],
+            disabled: embedQuantity === 0
+        })),
+        createRow(new ButtonBuilder({
+            customId: "manage/embeds/criar",
+            label: "Criar novo embed",
+            style: ButtonStyle.Success
+        }), new ButtonBuilder({
+            customId: "send/embed/optionsEmbed",
+            label: "Enviar embed",
+            style: ButtonStyle.Success,
+            disabled: embedQuantity === 0 // Desabilita o botão se não houver embeds
+        }), new ButtonBuilder({
+            customId: "return/dashBoard",
+            emoji: '↩️',
+            style: ButtonStyle.Secondary
+        }))
+    ];
     return {
-        flags,
         embeds: [embed],
-        components: [selectMenu, buttons]
+        components: components,
+        flags
     };
 }
-;

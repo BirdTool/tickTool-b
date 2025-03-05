@@ -41,7 +41,7 @@ function createClient(token, options) {
     client.token = token;
     client.on("ready", async (client) => {
         await client.guilds.fetch().catch(() => null);
-        log.log(ck.hex("#ff76a8")(`➝ Online as ${ck.hex("#ffbbf6").underline(client.user.username)}`));
+        log.log(ck.greenBright(`➝ Online as ${ck.hex("#57F287").underline(client.user.username)}`));
         await baseRegisterCommands(client);
         process.on("uncaughtException", err => baseErrorHandler(err, client));
         process.on("unhandledRejection", err => baseErrorHandler(err, client));

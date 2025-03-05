@@ -1,29 +1,23 @@
 import { createResponder, ResponderType } from "#base";
-import path from "path";
-import { fileURLToPath } from "url";
-import fs from "fs";
 import { menus } from "#menus";
 import { createEmbed, createRow } from "@magicyan/discord";
 import { settings } from "#settings";
 import { StringSelectMenuBuilder } from "discord.js";
 import { logChannel } from "../../../../functions/log.js";
+import { db } from "#database";
 createResponder({
     customId: "atribuir/ticket/:stap",
     types: [ResponderType.StringSelect], cache: "cached",
     async run(interaction, { stap }) {
         if (stap === "embed") {
-            const __filename = fileURLToPath(import.meta.url);
-            const __dirname = path.dirname(__filename);
-            const configPath = path.resolve(__dirname, '../../../data/config.json');
-            const embedPath = path.resolve(__dirname, '../../../data/embeds.json');
-            const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-            const embedJson = JSON.parse(fs.readFileSync(embedPath, 'utf-8'));
+            const embedJson = await db.guilds.get("embeds") || [];
+            const tickets = await db.guilds.get("tickets") || [];
             const choice = interaction.values[0];
-            if (choice in embedJson == undefined) { // verifica se o embed existe
+            if (!embedJson.some((embed) => embed.name === choice)) { // verifica se o embed existe
                 return interaction.reply(`Não encontrei o embed ${choice}!`);
             }
             ;
-            if (!config.ticketsManage) { // verifica se existe um ticket
+            if (tickets.length === 0) { // verifica se existe um ticket
                 interaction.reply({ content: `você não tem tickets configurado! crie um ticket primeiro`, flags });
                 return interaction.update(menus.ticketsAdd());
             }
@@ -34,10 +28,10 @@ createResponder({
                 color: settings.colors.warning,
                 fields: [{ name: `Embed selecionado:`, value: `${choice}`, inline: true }]
             });
-            const selectMenuOptions = Object.entries(config.ticketsManage).map(([ticketName, ticketDetails]) => {
+            const selectMenuOptions = tickets.map((ticketDetails) => {
                 const option = {
-                    label: ticketDetails.labelMenu || ticketName, // Usa o labelMenu ou o nome do ticket
-                    value: ticketName, // Nome do ticket no value
+                    label: ticketDetails.labelMenu || ticketDetails.ticketname, // Usa o labelMenu ou o nome do ticket
+                    value: ticketDetails.ticketname, // Nome do ticket no value
                 };
                 // Adiciona descriptionMenu se existir
                 if (ticketDetails.descriptionMenu) {
@@ -69,29 +63,24 @@ createResponder({
             });
         }
         else {
-            const __filename = fileURLToPath(import.meta.url);
-            const __dirname = path.dirname(__filename);
-            const configPath = path.resolve(__dirname, '../../../data/config.json');
-            const embedPath = path.resolve(__dirname, '../../../data/embeds.json');
-            const config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
-            const embedJson = JSON.parse(fs.readFileSync(embedPath, 'utf-8'));
+            const embedJson = await db.guilds.get("embeds") || [];
             const choices = interaction.values; // Valores selecionados pelo usuário
             // Obtém o nome do embed selecionado
             const embedChoiceName = interaction.message.embeds[0]?.fields[0]?.value;
-            if (!embedChoiceName || !(embedChoiceName in embedJson)) {
+            if (!embedChoiceName || !embedJson.some((embed) => embed.name === embedChoiceName)) {
                 return interaction.reply({
                     content: `Embed "${embedChoiceName}" não encontrado.`,
-                    flags: MessageFlags.Ephemeral,
+                    flags
                 });
             }
             // Obtém o embed selecionado do JSON
-            const selectedEmbed = embedJson[embedChoiceName];
+            const selectedEmbed = embedJson.find(embed => embed.name === embedChoiceName);
             // Inicializa 'tickets' como um array vazio, se estiver undefined
             selectedEmbed.tickets = selectedEmbed.tickets || [];
             // Atualiza a propriedade 'tickets', garantindo que não haja duplicatas
             selectedEmbed.tickets = Array.from(new Set([...selectedEmbed.tickets, ...choices]));
-            // Salva as mudanças no arquivo de embeds
-            fs.writeFileSync(embedPath, JSON.stringify(embedJson, null, 4), 'utf-8');
+            // Salvar as mudanças no banco de dados
+            await db.guilds.set("embeds", embedJson);
             // Atualiza a mensagem do embed no Discord
             const embed = createEmbed({
                 title: embedChoiceName,

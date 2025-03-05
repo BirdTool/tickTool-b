@@ -1,11 +1,9 @@
 import { createResponder, ResponderType } from "#base";
 import { createModalFields, createRow } from "@magicyan/discord";
 import { TextInputStyle, EmbedBuilder, ButtonBuilder, ButtonStyle } from "discord.js";
-import colorsAvaible from "../../data/colors.json" with { type: "json" };
+import colorsAvaible from "../../../colors.json" with { type: "json" };
 import { menus } from "#menus";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
+import { db } from "#database";
 createResponder({
     customId: "embed/create/:action",
     types: [ResponderType.Button, ResponderType.StringSelect], cache: "cached",
@@ -130,6 +128,11 @@ createResponder({
                     return interaction.update(menus.manageFields());
                 }
                 case "save": {
+                    let value = interaction.message.embeds[0].title && interaction.message.embeds[0].title?.length > 24 ? undefined : interaction.message.embeds[0].title === null ? undefined : interaction.message.embeds[0].title;
+                    const embeds = await db.guilds.get("embeds") || [];
+                    if (embeds.find(embed => embed.name === value)) {
+                        value = undefined;
+                    }
                     interaction.showModal({
                         customId: "embed/create/modal/save",
                         title: "Salvar embed",
@@ -139,7 +142,8 @@ createResponder({
                                 placeholder: "O nome do embed aqui",
                                 style: TextInputStyle.Short,
                                 required: true,
-                                maxLength: 30
+                                maxLength: 30,
+                                value
                             }
                         })
                     });
@@ -288,6 +292,7 @@ createResponder({
                 if (!name)
                     return interaction.reply("Você precisa fornecer um nome para o embed");
                 const embedData = {
+                    name: name,
                     title: embed.data.title,
                     description: embed.data.description,
                     color: embed.data.color ? `#${embed.data.color.toString(16).padStart(6, '0')}` : null,
@@ -299,16 +304,20 @@ createResponder({
                     timestamp: embed.data.timestamp,
                     tickets: []
                 };
-                const __filename = fileURLToPath(import.meta.url);
-                const __dirname = path.dirname(__filename);
-                const filePath = path.resolve(__dirname, '../../data/embeds.json');
-                let embeds = {};
-                if (fs.existsSync(filePath)) {
-                    const fileContent = fs.readFileSync(filePath, 'utf8');
-                    embeds = JSON.parse(fileContent);
+                // Busca os embeds existentes
+                const embeds = await db.guilds.get("embeds") || [];
+                // Verifica se já existe um embed com o mesmo nome
+                const existingEmbedIndex = embeds.findIndex(embed => embed.name === name);
+                if (existingEmbedIndex !== -1) {
+                    // Substitui o embed existente
+                    embeds[existingEmbedIndex] = embedData;
                 }
-                embeds[name] = embedData;
-                fs.writeFileSync(filePath, JSON.stringify(embeds, null, 4), 'utf8');
+                else {
+                    // Adiciona o novo embed
+                    embeds.push(embedData);
+                }
+                // Salva o array atualizado no banco de dados
+                await db.guilds.set("embeds", embeds);
                 return interaction.update({ content: `Embed salvo com sucesso!`, embeds: [], components: [] });
             }
         }

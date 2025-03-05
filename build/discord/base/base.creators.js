@@ -7,6 +7,7 @@ import { baseStorage } from "./base.storage.js";
 export function setupCreators(options = {}) {
     /** @commands */
     baseStorage.config.commands.guilds = options.commands?.guilds ?? [];
+    baseStorage.config.commands.verbose = options.commands?.verbose;
     baseStorage.config.commands.middleware = options.commands?.middleware;
     baseStorage.config.commands.onNotFound = options.commands?.onNotFound;
     baseStorage.config.commands.onError = options.commands?.onError;
@@ -20,7 +21,9 @@ export function setupCreators(options = {}) {
             /** @defaults */
             data.type ??= ApplicationCommandType.ChatInput;
             data.dmPermission ??= false;
-            data.defaultMemberPermissions ??= options.commands?.defaultMemberPermissions;
+            if (options.commands?.defaultMemberPermissions) {
+                data.defaultMemberPermissions ??= options.commands?.defaultMemberPermissions;
+            }
             /** @store */
             baseStorage.commands.set(data.name, data);
             baseCommandLog(data);
