@@ -35,7 +35,8 @@
 			"#server": ["./server/index.ts"],
 			"#lib": ["./lib/index.ts"],
 			"#emojis": ["../emojis.json"],
-			"@discordjs/builders/*": ["ignore"]
+			"@discordjs/builders/*": ["ignore"],
+			"#types": ["./types/index.ts"]
 		}
 	},
 	

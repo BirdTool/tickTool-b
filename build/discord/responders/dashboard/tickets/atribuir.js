@@ -10,10 +10,10 @@ createResponder({
     types: [ResponderType.StringSelect], cache: "cached",
     async run(interaction, { stap }) {
         if (stap === "embed") {
-            const embedJson = await db.guilds.get("embeds") || [];
+            const Embed = await db.guilds.get("embeds") || [];
             const tickets = await db.guilds.get("tickets") || [];
             const choice = interaction.values[0];
-            if (!embedJson.some((embed) => embed.name === choice)) { // verifica se o embed existe
+            if (!Embed.some((embed) => embed.name === choice)) { // verifica se o embed existe
                 return interaction.reply(`Não encontrei o embed ${choice}!`);
             }
             ;
@@ -63,24 +63,24 @@ createResponder({
             });
         }
         else {
-            const embedJson = await db.guilds.get("embeds") || [];
+            const Embed = await db.guilds.get("embeds") || [];
             const choices = interaction.values; // Valores selecionados pelo usuário
             // Obtém o nome do embed selecionado
             const embedChoiceName = interaction.message.embeds[0]?.fields[0]?.value;
-            if (!embedChoiceName || !embedJson.some((embed) => embed.name === embedChoiceName)) {
+            if (!embedChoiceName || !Embed.some((embed) => embed.name === embedChoiceName)) {
                 return interaction.reply({
                     content: `Embed "${embedChoiceName}" não encontrado.`,
                     flags
                 });
             }
             // Obtém o embed selecionado do JSON
-            const selectedEmbed = embedJson.find(embed => embed.name === embedChoiceName);
+            const selectedEmbed = Embed.find(embed => embed.name === embedChoiceName);
             // Inicializa 'tickets' como um array vazio, se estiver undefined
             selectedEmbed.tickets = selectedEmbed.tickets || [];
             // Atualiza a propriedade 'tickets', garantindo que não haja duplicatas
             selectedEmbed.tickets = Array.from(new Set([...selectedEmbed.tickets, ...choices]));
             // Salvar as mudanças no banco de dados
-            await db.guilds.set("embeds", embedJson);
+            await db.guilds.set("embeds", Embed);
             // Atualiza a mensagem do embed no Discord
             const embed = createEmbed({
                 title: embedChoiceName,

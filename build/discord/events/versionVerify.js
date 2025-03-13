@@ -25,6 +25,33 @@ async function getBotOwnerID(client) {
         return owner.id;
     }
 }
+async function errorVersionDeprecated(client, latestVersion) {
+    console.log(chalk.red(`Você está utilizando uma versão mais antiga da source! versão do bot: ${packageJson.version}, versão atual: ${latestVersion}`));
+    console.log(chalk.hex("#828282")("Baixe a versão mais recente aqui => https://github.com/BirdTool/tickTool-b/releases`"));
+    const logChannel = await db.guilds.get("logsChannel");
+    if (logChannel) {
+        try {
+            await client.channels.fetch(logChannel).then((channel) => {
+                if (!channel)
+                    return;
+                const embed = createEmbed({
+                    title: "Versão antiga",
+                    url: "https://github.com/BirdTool/tickTool-b/releases",
+                    description: `Você está utilizando uma versão mais antiga da source! versão do bot: **${packageJson.version}**, versão atual: **${latestVersion}**`,
+                    footer: { text: 'Baixe a versão mais recente clicando no título azul escrito "Versão antiga"' },
+                    timestamp: new Date().toISOString(),
+                    color: "#8a1919",
+                });
+                if (channel.type === ChannelType.GuildText) {
+                    channel.send({ embeds: [embed] });
+                }
+            });
+        }
+        catch (error) {
+            console.error("Não foi possivel enviar a menssagem nas logs");
+        }
+    }
+}
 createEvent({
     name: "versionVerify",
     event: "ready",
@@ -47,35 +74,23 @@ createEvent({
         const repoOwner = 'BirdTool';
         const repoName = 'tickTool-b';
         const latestVersion = await getLatestVersion(repoOwner, repoName);
-        if (latestVersion !== packageJson.version) {
-            console.log(chalk.red(`Você está utilizando uma versão mais antiga da source! versão do bot: ${packageJson.version}, versão atual: ${latestVersion}`));
-            console.log(chalk.hex("#828282")("Baixe a versão mais recente aqui => https://github.com/BirdTool/tickTool-b/releases`"));
-            const logChannel = await db.guilds.get("logsChannel");
-            if (logChannel) {
-                try {
-                    await client.channels.fetch(logChannel).then((channel) => {
-                        if (!channel)
-                            return;
-                        const embed = createEmbed({
-                            title: "Versão antiga",
-                            url: "https://github.com/BirdTool/tickTool-b/releases",
-                            description: `Você está utilizando uma versão mais antiga da source! versão do bot: **${packageJson.version}**, versão atual: **${latestVersion}**`,
-                            footer: { text: 'Baixe a versão mais recente clicando no título azul escrito "Versão antiga"' },
-                            timestamp: new Date().toISOString(),
-                            color: "#8a1919",
-                        });
-                        if (channel.type === ChannelType.GuildText) {
-                            channel.send({ embeds: [embed] });
-                        }
-                    });
-                }
-                catch (error) {
-                    console.error("Não foi possivel enviar a menssagem nas logs");
-                }
+        if (packageJson.version.includes("dev"))
+            return console.log(chalk.green("Bem vindo desenvolvedor!"));
+        if (packageJson.version.includes("beta")) {
+            const versions = packageJson.version.replace("-beta", "").split(".").map(Number);
+            const latest = latestVersion.split(".").map(Number);
+            if (versions[0] < latest[0] || versions[1] < latest[1] || versions[2] < latest[2]) {
+                return errorVersionDeprecated(client, latestVersion);
+            }
+            else {
+                return console.log(chalk.green("Você está rodando a versão"), chalk.yellow("beta"), chalk.green("mais recente!"));
             }
         }
+        if (latestVersion !== packageJson.version) {
+            return errorVersionDeprecated(client, latestVersion);
+        }
         else {
-            console.log(chalk.green(`Você está rodando na versão mais recente:`, latestVersion));
+            return console.log(chalk.green(`Você está rodando na versão mais recente:`, latestVersion));
         }
     }
 });
