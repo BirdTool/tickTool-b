@@ -1,6 +1,6 @@
 # Folders
 /.vscode
-/src
+/build
 /discloud
 /deprecated
 /node_modules
