@@ -11,11 +11,13 @@ Um bot de tickets personalizavel que é possivel criar seus próprios embeds de 
 
 ---
 
-Foi construido utilizando typescript e buildado, utilizando a base do [RinckoDev](https://github.com/rinckodev)
+Foi construido utilizando typescript utilizando a base do [RinckoDev](https://github.com/rinckodev)
 
 ---
 
 Foi pensado para usuários mais leigos, apenas necessita de por o token em um arquivo [`env.txt`](https://github.com/BirdTool/tickTool-b/blob/main/env.txt)
+
+Para desenvolvedores que baixarem a versão typescript o arquivo env é `.env`
 
 ---
 
@@ -45,20 +47,22 @@ git clone https://github.com/BirdTool/tickTool-b
 
 No linux se você baixar a versão `tar.gz` não será necessário o descompactador
 
+Tenha a **Atenção** que a versão source será a versão de desenvolvedor, se você quer baixar a versão buildada(para quem só quer usar o bot) baixe `build-js.zip`
+
 #### Passos:
 
 1. Acesse a página aonde está todas as [versões do repositório](https://github.com/BirdTool/tickTool-b/releases)
 2. Escolha a versão, você pode escolher entre a versão beta mais recente (se houver) ou a versão estável mais recente
-3. Selecione "Source code" abaixo das notas da versão, se não estiver no **linux** não baixe `tar.gz`
+3. Selecione "`build-js.zip`" ou se você é um desenvolvedor baixe a versão "`dev-ts.zip`"
 4. Descompacte o arquivo
 5. Use como quiser
 
 ## Instrução de uso
 
 #### Como ligar
-1. Coloque o seu token no arquivo `env.txt`.
+1. Coloque o seu token no arquivo `env.txt` / ou se você baixou a versão dev: `.env`.
 2. Use `npm install` para instalar as dependências.
-3. Use `npm run start` para ligar o bot.
+3. Use `npm run start` para ligar o bot / ou se você baixou a versão dev use `npm run dev`.
 
 Assim que ligado, o bot reconhecerá seu id na primeira ligação, caso contrário, modifique manualmente a database ou crie uma [issues](https://github.com/BirdTool/tickTool-b/issues) pedindo ajuda.
 
