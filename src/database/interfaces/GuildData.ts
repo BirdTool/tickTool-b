@@ -1,3 +1,5 @@
+import { ActivityType } from "discord.js";
+
 export interface GuildData {
     owner: string,
     superAdminRoles?: string[],
@@ -7,7 +9,12 @@ export interface GuildData {
     embeds?: Embed[],
     tickets?: TicketDetails[],
     logsChannel?: string,
-    ticketsExisting?: { [key: string]: string }
+    ticketsExisting?: { [key: string]: string },
+    activity: {
+        status: "online" | "idle" | "dnd" | "invisible",
+        type: keyof typeof ActivityType
+        text: string
+    }
 }
 
 interface Embed {

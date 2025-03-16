@@ -2,7 +2,7 @@ import { createCommand } from "#base";
 import { db } from "#database";
 import { settings } from "#settings";
 import { createEmbed } from "@magicyan/discord";
-import { ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
+import { ActivityType, ApplicationCommandOptionType, ApplicationCommandType } from "discord.js";
 
 createCommand({
     name: "sudo",
@@ -95,15 +95,97 @@ createCommand({
                     ]
                 }
             ]
+        },
+        {
+            name: "bot",
+            description: "bot commands",
+            type: ApplicationCommandOptionType.SubcommandGroup,
+            options: [
+                {
+                    name: "setactivity",
+                    description: "set the bot activity",
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: "type",
+                            description: "the type of activity",
+                            type: ApplicationCommandOptionType.String,
+                            required: true,
+                            choices: [
+                                {
+                                    name: "playing",
+                                    value: "PLAYING"
+                                },
+                                {
+                                    name: "listening",
+                                    value: "LISTENING"
+                                },
+                                {
+                                    name: "watching",
+                                    value: "WATCHING"
+                                },
+                                {
+                                    name: "competing",
+                                    value: "COMPETING"
+                                }
+                            ]
+                        },
+                        {
+                            name: "text",
+                            description: "the text to display",
+                            type: ApplicationCommandOptionType.String,
+                            required: true
+                        }
+                    ]
+                },
+                {
+                    name: "setstatus",
+                    description: "set the bot status",
+                    type: ApplicationCommandOptionType.Subcommand,
+                    options: [
+                        {
+                            name: "type",
+                            description: "the type of status",
+                            type: ApplicationCommandOptionType.String,
+                            required: true,
+                            choices: [
+                                {
+                                    name: "online",
+                                    value: "online"
+                                },
+                                {
+                                    name: "idle",
+                                    value: "idle"
+                                },
+                                {
+                                    name: "not disturb",
+                                    value: "dnd"
+                                },
+                                {
+                                    name: "invisible",
+                                    value: "invisible"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "shutdown",
+                    description: "shutdown the bot",
+                    type: ApplicationCommandOptionType.Subcommand
+                }
+            ]
         }
     ],
     type: ApplicationCommandType.ChatInput,
-    async run(interaction){
+    async run(interaction) {
         if (interaction.user.id !== await db.guilds.get<string>("owner")) {
             return interaction.reply({ content: "Você não tem permissão para usar esse comando", flags });
         }
-        if (interaction.options.getSubcommandGroup() === "db") {
-            switch(interaction.options.getSubcommand()) {
+        const subCommandGroup = interaction.options.getSubcommandGroup();
+        const subCommand = interaction.options.getSubcommand();
+        if (subCommandGroup === "db") {
+            switch (subCommand) {
                 case "remove": {
                     const key = interaction.options.getString("key", true);
                     const action = interaction.options.getString("action", true) as "delete" | "splice" | "all";
@@ -154,11 +236,11 @@ createCommand({
                                 value: any;
                             }
                             const values = await db.guilds.all<Values[]>();
-                    
+
                             // Formata os valores de maneira organizada
                             const content = formatValues(values);
 
-                    
+
                             // Verifica se o conteúdo excede o limite de caracteres do Discord
                             if (content.length <= limitCharacters) {
                                 // Se não exceder, envia uma única mensagem
@@ -172,7 +254,7 @@ createCommand({
                             } else {
                                 // Se exceder, divide o conteúdo em várias mensagens
                                 const chunks = splitContent(content, limitCharacters); // Divide o conteúdo em partes de 2000 caracteres
-                    
+
                                 // Envia a primeira mensagem como resposta à interação
                                 await interaction.reply({
                                     embeds: [createEmbed({
@@ -181,7 +263,7 @@ createCommand({
                                     })],
                                     flags
                                 });
-                    
+
                                 // Envia as mensagens restantes como follow-ups
                                 for (let i = 1; i < chunks.length; i++) {
                                     await interaction.followUp({
@@ -210,10 +292,10 @@ createCommand({
                             if (!value) {
                                 return interaction.reply({ content: `A chave ${key} não possui um valor no banco de dados`, flags });
                             }
-                    
+
                             // Formata o valor da chave específica
                             const content = `🔑 **Chave:** ${key}\n📦 **Valor:**\n\`\`\`json\n${JSON.stringify(value, null, 2)}\n\`\`\``;
-                    
+
                             // Verifica se o conteúdo excede o limite de caracteres do Discord
                             if (content.length <= limitCharacters) {
                                 // Se não exceder, envia uma única mensagem
@@ -227,7 +309,7 @@ createCommand({
                             } else {
                                 // Se exceder, divide o conteúdo em várias mensagens
                                 const chunks = splitContent(content, limitCharacters); // Divide o conteúdo em partes de limitCharacters caracteres
-                    
+
                                 // Envia a primeira mensagem como resposta à interação
                                 await interaction.reply({
                                     embeds: [createEmbed({
@@ -236,7 +318,7 @@ createCommand({
                                     })],
                                     flags
                                 });
-                    
+
                                 // Envia as mensagens restantes como follow-ups
                                 for (let i = 1; i < chunks.length; i++) {
                                     await interaction.followUp({
@@ -270,7 +352,65 @@ createCommand({
                     return interaction.reply({ content: "Subcomando não encontrado", flags });
                 }
             }
-        } else {
+        } else if (subCommandGroup === "bot") {
+            switch (subCommand) {
+                case "setactivity": {
+                    const typeString = interaction.options.getString("type", true);
+                    const text = interaction.options.getString("text", true);
+
+                    // Mapear a string para o valor numérico correto do ActivityType
+                    let type: ActivityType;
+                    switch (typeString) {
+                        case "PLAYING":
+                            type = ActivityType.Playing;
+                            break;
+                        case "LISTENING":
+                            type = ActivityType.Listening;
+                            break;
+                        case "WATCHING":
+                            type = ActivityType.Watching;
+                            break;
+                        case "COMPETING":
+                            type = ActivityType.Competing;
+                            break;
+                        default:
+                            type = ActivityType.Playing;
+                    }
+
+                    const client = interaction.client;
+
+                    await interaction.deferReply({ flags })
+
+                    client.user.setActivity(text, { type });
+                    await db.guilds.set("activity.type", type);
+                    await db.guilds.set("activity.text", text);
+
+                    return await interaction.editReply({ content: `Atividade alterada para ${text}` });
+                }
+                case "setstatus": {
+                    const status = interaction.options.getString("type", true) as "online" | "idle" | "dnd" | "invisible";
+                    const client = interaction.client;
+
+                    await interaction.deferReply({ flags })
+
+                    client.user.setStatus(status);
+
+                    await db.guilds.set("activity.status", status);
+
+                    return await interaction.editReply({ content: `Status alterado para ${status} espere alguns segundos para atualizar` });
+                }
+                case "shutdown": {
+                    const client = interaction.client;
+                    await interaction.reply({ content: "Desligado com sucesso!", flags });
+                    setTimeout(() => {
+                        client.destroy();
+                        2000
+                    })
+                    return;
+                }
+            }
+        }
+        else {
             return interaction.reply({ content: "Comando não encontrado", flags });
         }
     }

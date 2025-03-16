@@ -88,8 +88,11 @@ createEvent({
 
         if (packageJson.version.includes("dev")) return console.log(chalk.green("Bem vindo desenvolvedor!"));
         if (packageJson.version.includes("beta")) {
-            const versions = packageJson.version.replace("-beta", "").split(".").map(Number);
+            // Extrai a parte principal da versão (antes do -beta)
+            const mainVersion = packageJson.version.split("-beta")[0];
+            const versions = mainVersion.split(".").map(Number);
             const latest = latestVersion.split(".").map(Number);
+            
             if (versions[0] < latest[0] || versions[1] < latest[1] || versions[2] < latest[2]) {
                 return errorVersionDeprecated(client, latestVersion)
             } else {
