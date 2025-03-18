@@ -127,12 +127,16 @@ createCommand({
                                 {
                                     name: "competing",
                                     value: "COMPETING"
+                                },
+                                {
+                                    name: "reset",
+                                    value: "reset"
                                 }
                             ]
                         },
                         {
                             name: "text",
-                            description: "the text to display",
+                            description: "the text to display (write anything if is reset)",
                             type: ApplicationCommandOptionType.String,
                             required: true
                         }
@@ -357,29 +361,27 @@ createCommand({
                 case "setactivity": {
                     const typeString = interaction.options.getString("type", true);
                     const text = interaction.options.getString("text", true);
+                    await interaction.deferReply({ flags })
+
+                    if (typeString === "reset") {
+                        const client = interaction.client;
+                        client.user.setActivity("", { type: undefined });
+                        await db.guilds.delete("activity.type");
+                        await db.guilds.delete("activity.text");
+                        return await interaction.editReply({ content: "Atividade do bot resetada com sucesso" });
+                    }
 
                     // Mapear a string para o valor numérico correto do ActivityType
-                    let type: ActivityType;
-                    switch (typeString) {
-                        case "PLAYING":
-                            type = ActivityType.Playing;
-                            break;
-                        case "LISTENING":
-                            type = ActivityType.Listening;
-                            break;
-                        case "WATCHING":
-                            type = ActivityType.Watching;
-                            break;
-                        case "COMPETING":
-                            type = ActivityType.Competing;
-                            break;
-                        default:
-                            type = ActivityType.Playing;
-                    }
+                    const type: ActivityType = typeString === "PLAYING"
+                        ? ActivityType.Playing
+                        : typeString === "LISTENING"
+                        ? ActivityType.Listening
+                        : typeString === "WATCHING"
+                        ? ActivityType.Competing
+                        : ActivityType.Playing;
 
                     const client = interaction.client;
 
-                    await interaction.deferReply({ flags })
 
                     client.user.setActivity(text, { type });
                     await db.guilds.set("activity.type", type);

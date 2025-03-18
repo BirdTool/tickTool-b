@@ -7,7 +7,7 @@ createEvent({
     name: "acivitySet",
     event: "ready",
     async run(client) {
-        const activity = await db.guilds.get<{ status: "online" | "idle" | "dnd" | "invisible"; type: string; text: string }>("status");
+        const activity = await db.guilds.get<{ status: "online" | "idle" | "dnd" | "invisible"; type: string; text: string }>("activity");
         if (activity === null) return
         if (activity.status) {
             try {
@@ -19,23 +19,13 @@ createEvent({
         }
         if (activity.type && activity.text) {
             try {
-                let type: ActivityType;
-                switch (activity.type) {
-                    case "PLAYING":
-                        type = ActivityType.Playing;
-                        break;
-                    case "LISTENING":
-                        type = ActivityType.Listening;
-                        break;
-                    case "WATCHING":
-                        type = ActivityType.Watching;
-                        break;
-                    case "COMPETING":
-                        type = ActivityType.Competing;
-                        break;
-                    default:
-                        type = ActivityType.Playing;
-                }
+                const type: ActivityType = activity.type === "PLAYING"
+                        ? ActivityType.Playing
+                        : activity.type === "LISTENING"
+                        ? ActivityType.Listening
+                        : activity.type === "WATCHING"
+                        ? ActivityType.Competing
+                        : ActivityType.Playing;
                 client.user.setActivity(activity.text, { type });
                 console.log(chalk.green(`[ACTIVITY] Activity set to ${activity.text}`));
             } catch (error) {

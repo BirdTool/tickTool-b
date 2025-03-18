@@ -1,7 +1,7 @@
 # Bot de Tickets Para discord
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 [![GitHub release](https://img.shields.io/github/release/BirdTool/tickTool-b.svg)](https://GitHub.com/BirdTool/tickTool-b/releases/)
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/BirdTool/tickTool-b/graphs/commit-activity)
 
@@ -17,11 +17,23 @@ Foi construido utilizando typescript utilizando a base do [RinckoDev](https://gi
 
 Foi pensado para usuários mais leigos, apenas necessita de por o token em um arquivo [`env.txt`](https://github.com/BirdTool/tickTool-b/blob/main/env.txt)
 
-Para desenvolvedores que baixarem a versão typescript o arquivo env é `.env`
-
 ---
 
 ## Instrução de instalação
+
+### Para somente utilizar o bot:
+
+1. Navegue até releases ou [clique aqui](https://github.com/BirdTool/tickTool-b/releases)
+2. Baixe o arquivo `build-js.zip` da versão mais **recente**
+3. Modifique o arquivo `env.txt` colocando seu token, e de preferência um webhook para notificar erros(não esquecendo de retirar o "#" do inicio)
+4. Se você descompatou para editar o arquivo env.txt, você pode compactar novamente, ou ignore esse passo.
+5. Enviar na discloud via `.upc` ou pelo site https://discloud.com
+
+> observação: **NÃO** use `.up` para enviar o arquivo e sim `.upc`
+
+Você pode [pular para Instrução de uso](#instrução-de-uso)
+
+### Para editar o código:
 
 ### Utilizando terminal:
 
@@ -47,13 +59,11 @@ git clone https://github.com/BirdTool/tickTool-b
 
 No linux se você baixar a versão `tar.gz` não será necessário o descompactador
 
-Tenha a **Atenção** que a versão source será a versão de desenvolvedor, se você quer baixar a versão buildada(para quem só quer usar o bot) baixe `build-js.zip`
-
 #### Passos:
 
 1. Acesse a página aonde está todas as [versões do repositório](https://github.com/BirdTool/tickTool-b/releases)
 2. Escolha a versão, você pode escolher entre a versão beta mais recente (se houver) ou a versão estável mais recente
-3. Selecione "`build-js.zip`" ou se você é um desenvolvedor baixe a versão "`dev-ts.zip`"
+3. Selecione "`dev-ts.zip`"
 4. Descompacte o arquivo
 5. Use como quiser
 

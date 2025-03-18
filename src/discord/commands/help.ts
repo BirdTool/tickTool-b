@@ -12,10 +12,12 @@ createCommand({
             title: "Comandos",
             fields: [
                 { name: "Staff", value: `- **/dashboard** (\`Painel que contém tudo que um admin pode fazer\`)
-                 - **/sudo** (\`Comandos que apenas o dono pode fazer, ele pode listar a db, modificar e excluir valores, é um comando perigoso então só use se você sabe o que está fazendo.\`)` 
+                 - **/sudo db** (\`Comandos que apenas o dono pode fazer, ele pode listar a db, modificar e excluir valores, é um comando perigoso então só use se você sabe o que está fazendo.\`)
+                 - **/sudo bot** (\`Modificar o status do bot ou desligar ele\`)` 
                 },
                 { name: "Outros", value: `- **/help** (\`Mostra todos os comandos disponíveis\`)
-                 - **/github** (\`Mostra o link do repositório do bot, e aonde você pode ajuda/sugestões/reportar bug para a source\`)` 
+                 - **/github** (\`Mostra o link do repositório do bot, e aonde você pode ajuda/sugestões/reportar bug para a source\`)
+                 - **/tips** (\`Dicas sobre o bot\`)`
                 }
             ],
             timestamp: new Date().toISOString(),

@@ -6,5 +6,5 @@ createEvent({
     event: "error",
     async run(error) {
         log.error(error);
-    },
+    }
 });
