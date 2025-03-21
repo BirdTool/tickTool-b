@@ -10,10 +10,15 @@ createCommand({
     async run(interaction) {
         const userId = interaction.user.id;
         const staff = new Staff(interaction);
-        if (!staff.hasPosition(userId, { positionChoiced: "moderator", positionAbsolute: false})) {
+        
+        // Adicione o await aqui
+        const hasPermission = await staff.hasPosition(userId, { positionChoiced: "moderator", positionAbsolute: false});
+        
+        if (!hasPermission) {
             return interaction.reply({ content: "Você não tem permissão para acessar este menu.", flags });
         }
-
+        
         return interaction.reply(menus.dashBoard());
     },
 });
+

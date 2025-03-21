@@ -8,74 +8,72 @@ export default class Staff {
     }
     async hasPosition(id: string, options: { positionAbsolute?: boolean, positionChoiced: "owner" | "moderator" | "admin" | "superAdmin" } = { positionChoiced: "moderator" }): Promise<boolean> {
         const guildId = this.interaction.guildId;
-        if (!guildId) return false;
+        if (!guildId) {
+            console.log("Guild ID não encontrado");
+            return false;
+        }
+    
+        // Verificar se o usuário é o dono do servidor
+        const isOwner = await db.guilds.get<string>("owner") || null;
+        
+        if (isOwner === id) return true;
     
         // Obter as roles do usuário
-        const usersRoles = this.interaction.client.guilds.cache.get(guildId)?.members.cache.get(id)?.roles.cache.map(r => r.id) || [];
+        const member = this.interaction.client.guilds.cache.get(guildId)?.members.cache.get(id);
+        const usersRoles = member?.roles.cache.map(r => r.id) || [];
     
         // Carregar as roles do banco de dados
-        const roles = {
-            superAdminRoles: new Set(await db.guilds.get<string[]>("superAdminRoles") || []),
-            adminRoles: new Set(await db.guilds.get<string[]>("adminRoles") || []),
-            modRoles: new Set(await db.guilds.get<string[]>("modRoles") || [])
-        };
-    
-        // Hierarquia de cargos (do mais alto para o mais baixo)
-        const roleHierarchy = ["owner", "superAdmin", "admin", "moderator"];
-    
+        const superAdminRoles = await db.guilds.get<string[]>("superAdminRoles") || [];
+        const adminRoles = await db.guilds.get<string[]>("adminRoles") || [];
+        const modRoles = await db.guilds.get<string[]>("modRoles") || [];
+
         // Função auxiliar para verificar se o usuário tem uma role específica
-        const hasRole = (roleSet: Set<string>, userRoles: string[]): boolean => {
-            return userRoles.some(role => roleSet.has(role));
+        const hasRole = (roleArray: string[], userRoles: string[]): boolean => {
+            const hasAny = userRoles.some(role => roleArray.includes(role));
+            return hasAny;
         };
-        
-        // throw new Error
     
-        // Verificar se o usuário tem o cargo especificado ou superior
+        let result = false;
+    
+        // Se positionAbsolute for true, verificar apenas o cargo especificado
         if (options.positionAbsolute) {
-            // Se positionAbsolute for true, verificar apenas o cargo especificado
             switch (options.positionChoiced) {
                 case "owner":
-                    // Verificar se o usuário é o dono do servidor
-                    const isOwner = await db.guilds.get<string>("owner") || null;
-                    return isOwner === id;
+                    result = isOwner === id;
+                    break;
                 case "superAdmin":
-                    return hasRole(roles.superAdminRoles, usersRoles);
+                    result = hasRole(superAdminRoles, usersRoles);
+                    break;
                 case "admin":
-                    return hasRole(roles.adminRoles, usersRoles);
+                    result = hasRole(adminRoles, usersRoles);
+                    break;
                 case "moderator":
-                    return hasRole(roles.modRoles, usersRoles);
-                default:
-                    return false;
+                    result = hasRole(modRoles, usersRoles);
+                    break;
             }
         } else {
             // Se positionAbsolute for false, verificar o cargo especificado ou superior
-            const positionIndex = roleHierarchy.indexOf(options.positionChoiced);
-    
-            // Verificar cada cargo na hierarquia, começando do mais alto
-            for (let i = 0; i <= positionIndex; i++) {
-                const role = roleHierarchy[i];
-    
-                switch (role) {
-                    case "owner":
-                        // Verificar se o usuário é o dono do servidor
-                        const isOwner = await db.guilds.get<string>("owner") || null;
-                        if(isOwner === id) return true
-                        break;
-                    case "superAdmin":
-                        if (hasRole(roles.superAdminRoles, usersRoles)) return true;
-                        break;
-                    case "admin":
-                        if (hasRole(roles.adminRoles, usersRoles)) return true;
-                        break;
-                    case "moderator":
-                        if (hasRole(roles.modRoles, usersRoles)) return true;
-                        break;
-                }
+            switch (options.positionChoiced) {
+                case "moderator":
+                    result = hasRole(modRoles, usersRoles) || 
+                             hasRole(adminRoles, usersRoles) || 
+                             hasRole(superAdminRoles, usersRoles);
+                    break;
+                case "admin":
+                    result = hasRole(adminRoles, usersRoles) || 
+                             hasRole(superAdminRoles, usersRoles);
+                    break;
+                case "superAdmin":
+                    result = hasRole(superAdminRoles, usersRoles);
+                    break;
+                case "owner":
+                    result = isOwner === id;
+                    break;
             }
         }
-    
-        return false;
+        return result;
     }
+     
     async getPosition(id: string): Promise<string | null> {
         // Carregar as roles uma vez
         const roles = {

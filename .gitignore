@@ -4,6 +4,7 @@
 /discloud
 /deprecated
 /node_modules
+/src/discord/commands/dev
 
 # Files
 /.env

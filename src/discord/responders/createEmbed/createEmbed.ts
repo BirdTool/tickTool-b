@@ -22,7 +22,8 @@ createResponder({
                                 placeholder: "O título do embed aqui",
                                 style: TextInputStyle.Short,
                                 maxLength: 256,
-                                value: interaction.message.embeds[0].title ?? undefined
+                                value: interaction.message.embeds[0].title ?? undefined,
+                                required: false
                             }
                         })
                     })
@@ -38,7 +39,8 @@ createResponder({
                                 placeholder: "A descrição do embed aqui",
                                 style: TextInputStyle.Paragraph,
                                 maxLength: 2500,
-                                value: interaction.message.embeds[0].description ?? undefined
+                                value: interaction.message.embeds[0].description ?? undefined,
+                                required: false
                             }
                         })
                     })
@@ -206,76 +208,106 @@ createResponder({
     customId: "embed/create/modal/:action",
     types: [ResponderType.ModalComponent], cache: "cached",
     async run(interaction, { action }) {
+        const embed = new EmbedBuilder(interaction.message.embeds[0].toJSON());
+
+        interface AuthorData {
+            name: string;
+            iconURL?: string;
+            url?: string;
+        }
+
+        interface FooterData {
+            text: string;
+            iconURL?: string;
+        }
+
+        const modifyEmbed = (part: keyof typeof embed.data, newValue: string | null | AuthorData | FooterData) => {
+            const newEmbed = new EmbedBuilder(embed.data);
+            
+            if (newValue === null) {
+                if (part === "author") {
+                    newEmbed.setAuthor(null);
+                } else if (part === "footer") {
+                    newEmbed.setFooter(null);
+                } else if (part === "thumbnail") {
+                    newEmbed.setThumbnail(null);
+                } else if (part === "image") {
+                    newEmbed.setImage(null);
+                } else {
+                    (newEmbed.data as any)[part] = null;
+                }
+            } else {
+                if (part === "author" && typeof newValue === "object") {
+                    newEmbed.setAuthor(newValue as AuthorData);
+                } else if (part === "footer" && typeof newValue === "object") {
+                    newEmbed.setFooter(newValue as FooterData);
+                } else if (part === "thumbnail" && typeof newValue === "string") {
+                    newEmbed.setThumbnail(newValue);
+                } else if (part === "image" && typeof newValue === "string") {
+                    newEmbed.setImage(newValue);
+                } else {
+                    (newEmbed.data as any)[part] = newValue;
+                }
+            }
+            
+            return newEmbed;
+        }
+        
+        
         switch(action) {
             case "title": {
-                const title = interaction.fields.getTextInputValue("title");
-                if(!title) return interaction.reply("Você precisa informar um título para o embed");
-                const embed = new EmbedBuilder(interaction.message.embeds[0].toJSON());
-                embed.setTitle(title);
-                return interaction.update({ embeds: [embed] });
+                const title = interaction.fields.getTextInputValue("title") || null;
+                const newEmbed = modifyEmbed("title", title);
+                return interaction.update({ embeds: [newEmbed] });
             }
             case "description": {
-                const description = interaction.fields.getTextInputValue("description");
-                if(!description) return interaction.reply("Você precisa informar uma descrição para o embed");
-                const embed = new EmbedBuilder(interaction.message.embeds[0].toJSON());
-                embed.setDescription(description);
-                return interaction.update({ embeds: [embed] });
+                const description = interaction.fields.getTextInputValue("description") || null;
+                const newEmbed = modifyEmbed("description", description);
+                return interaction.update({ embeds: [newEmbed] });
             }
             case "author": {
                 const name = interaction.fields.getTextInputValue("name");
-                const image = interaction.fields.getTextInputValue("image");
-                const authorURL = interaction.fields.getTextInputValue("authorURL");
-                const embed = new EmbedBuilder(interaction.message.embeds[0].toJSON());
-
-                if (name) {
-                    const authorData: { name: string, iconURL?: string, url?: string } = { name };
-                    if (image) authorData.iconURL = image;
-                    if (authorURL) authorData.url = authorURL;
-                    embed.setAuthor(authorData);
+                const image = interaction.fields.getTextInputValue("image") || undefined;
+                const authorURL = interaction.fields.getTextInputValue("authorURL") || undefined;
+            
+                let newEmbed;
+                if (!name) {
+                    newEmbed = modifyEmbed("author", null);
                 } else {
-                    embed.setAuthor(null);
+                    const authorData: AuthorData = { name, iconURL: image, url: authorURL };
+                    newEmbed = modifyEmbed("author", authorData);
                 }
-
-                return interaction.update({ embeds: [embed] });
+                
+                return interaction.update({ embeds: [newEmbed] });
             }
+            
             case "footer": {
                 const footerText = interaction.fields.getTextInputValue("footerText");
-                const footerImage = interaction.fields.getTextInputValue("footerImage");
-                const embed = new EmbedBuilder(interaction.message.embeds[0].toJSON());
+                const footerImage = interaction.fields.getTextInputValue("footerImage") || undefined;
 
+                let newEmbed;
                 if (footerText) {
-                    const footerData: { text: string, iconURL?: string } = { text: footerText };
-                    if (footerImage) footerData.iconURL = footerImage;
-                    embed.setFooter(footerData);
+                    const footerData: FooterData = { text: footerText, iconURL: footerImage };
+                    newEmbed = modifyEmbed("footer", footerData);
                 } else {
-                    embed.setFooter(null);
+                    newEmbed = modifyEmbed("footer", null);
                 }
 
-                return interaction.update({ embeds: [embed] });
+                return interaction.update({ embeds: [newEmbed] });
             }
             case "thumbnail": {
-                const thumbnailURL = interaction.fields.getTextInputValue("thumbnailURL");
-                const embed = new EmbedBuilder(interaction.message.embeds[0].toJSON());
+                const thumbnailURL = interaction.fields.getTextInputValue("thumbnailURL") || null;
+                
+                const newEmbed = modifyEmbed("thumbnail", thumbnailURL);
 
-                if (thumbnailURL) {
-                    embed.setThumbnail(thumbnailURL);
-                } else {
-                    embed.setThumbnail(null);
-                }
-
-                return interaction.update({ embeds: [embed] });
+                return interaction.update({ embeds: [newEmbed] });
             }
             case "image": {
-                const imageURL = interaction.fields.getTextInputValue("imageURL");
-                const embed = new EmbedBuilder(interaction.message.embeds[0].toJSON());
+                const imageURL = interaction.fields.getTextInputValue("imageURL") || null;
+                
+                const newEmbed = modifyEmbed("image", imageURL);
 
-                if (imageURL) {
-                    embed.setImage(imageURL);
-                } else {
-                    embed.setImage(null);
-                }
-
-                return interaction.update({ embeds: [embed] });
+                return interaction.update({ embeds: [newEmbed] });
             }
             case "fieldadd": {
                 const name = interaction.fields.getTextInputValue("name");
@@ -295,7 +327,6 @@ createResponder({
                 return interaction.update({ embeds: [embed] });
             }
             case "save": {
-                const embed = new EmbedBuilder(interaction.message.embeds[0].toJSON());
                 const name = interaction.fields.getTextInputValue("name");
             
                 if (!name) return interaction.reply("Você precisa fornecer um nome para o embed");
