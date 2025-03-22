@@ -1,4 +1,12 @@
-# Bot de Tickets Para discord
+<h1 align="center">
+Bot de Tickets Para discord
+</h1>
+
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/02a6926a-0d4a-4b22-8555-36567f21152c" alt="ticktoollogo">
+</p>
+
 ![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
@@ -32,6 +40,7 @@ Foi pensado para usuários mais leigos, apenas necessita de por o token em um ar
 > observação: **NÃO** use `.up` para enviar o arquivo e sim `.upc`
 
 Você pode [pular para Instrução de uso](#instrução-de-uso)
+
 
 ### Para editar o código:
 
