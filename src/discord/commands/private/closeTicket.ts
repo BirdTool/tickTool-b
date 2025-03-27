@@ -30,10 +30,16 @@ createCommand({
         const embed = createEmbed({
             title: "Ticket fechado",
             description: "O ticket foi fechado com sucesso!",
+            author: { name: interaction.user.username, iconURL: interaction.user.avatarURL() || undefined },
             color: settings.colors.danger
         });
 
         const row = createRow(
+            new ButtonBuilder({
+                customId: "ticket/transcript",
+                label: "Transcrever o ticket",
+                style: ButtonStyle.Primary
+            }),
             new ButtonBuilder({
                 customId: "ticket/delete",
                 label: "Excluir Ticket",

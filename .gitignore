@@ -5,12 +5,14 @@
 /deprecated
 /node_modules
 /src/discord/commands/dev
+/src/discord/commands/private/dev
 
 # Files
 /.env
 /.env.dev
 /.env.development
 /package-lock.json
+/template.html
 
 # Config files
 /firebase.json
