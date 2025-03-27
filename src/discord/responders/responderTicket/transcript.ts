@@ -40,6 +40,7 @@ createResponder({
         const ownerUsername = ownerTicket ? (await interaction.client.users.fetch(ownerTicket)).username : "Unknown";
 
         const fetched = await interaction.channel.messages.fetch();
+        fetched.sort((a, b) => a.createdTimestamp - b.createdTimestamp);
         const messages = Array.from(fetched.values());
         
         const role = (message: Message) => {

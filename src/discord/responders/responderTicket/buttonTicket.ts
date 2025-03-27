@@ -1,4 +1,4 @@
-import { ChannelType, time } from "discord.js";
+import { ChannelType, roleMention, time } from "discord.js";
 import { createResponder, ResponderType, Store } from "#base";
 import { db } from "#database";
 import { createEmbed } from "@magicyan/discord";
@@ -87,29 +87,8 @@ createResponder({
         }
 
         const staffRoles = [...roles.superAdmin, ...roles.admin, ...roles.moderator, roles.owner];
-        const membersToAdd = new Set<string>();
-
-        for (const roleId of staffRoles) {
-            const role = guild.roles.cache.get(roleId);
-            if (role) {
-                for (const member of role.members.values()) {
-                    membersToAdd.add(member.id);
-                }
-            }
-        }
-
-        // Converte para array e divide em lotes
-        const membersArray = [...membersToAdd];
-        const batchSize = 5;
-
-        for (let i = 0; i < membersArray.length; i += batchSize) {
-            const batch = membersArray.slice(i, i + batchSize);
-            await Promise.allSettled(batch.map(memberId => thread.members.add(memberId)));
-            
-            // Pequeno delay para evitar rate-limit
-            if (i + batchSize < membersArray.length) await new Promise(res => setTimeout(res, 1000));
-        }
-
+        
+        await thread.send(staffRoles.map(roleId => roleMention(roleId)).join(" "))
 
         // Envie a mensagem de confirmação
         await interaction.editReply({
@@ -148,7 +127,7 @@ createResponder({
             if (embed.footer) embedMaked.setFooter({ text: embed.footer.text, iconURL: embed.footer.icon_url });
             if (embed.author) embedMaked.setAuthor({ name: embed.author.name, iconURL: embed.author.icon_url, url: embed.author.url });
             if (embed.thumbnail) embedMaked.setThumbnail(embed.thumbnail.url || null);
-            if (embed.image) embedMaked.setImage(embed.image.url);
+            if (embed.image) embedMaked.setImage(embed.image.url || null);
         
             // Envia o embed criado
             await thread.send({ embeds: [embedMaked] });
