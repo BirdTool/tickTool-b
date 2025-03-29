@@ -13,15 +13,13 @@ createResponder({
             if (!interaction.channel) {
                 return interaction.followUp({ content: "Erro: Canal não encontrado.", ephemeral: true });
             }
+            
+            // Remove o valor do banco de dados
+            await db.guilds.delete(`ticketsExisting.${interaction.channel.id}`);
 
             // Exclui o canal
             await interaction.channel.delete("Ticket excluído pelo bot.");
 
-            // Remove o valor do banco de dados
-            await db.guilds.delete(`ticketsExisting.${interaction.channel.id}`);
-
-            // Confirma a exclusão
-            await interaction.followUp({ content: "Ticket excluído com sucesso!", ephemeral: true });
         } catch (error) {
             console.error("Erro ao deletar o canal:", error);
             await interaction.followUp({ content: "Ocorreu um erro ao excluir o ticket.", ephemeral: true });
