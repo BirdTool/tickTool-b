@@ -13,6 +13,10 @@ createCommand({
     description: "começa as alterações rapidamente para vocẽ",
     type: ApplicationCommandType.ChatInput,
     async run(interaction){
+        const owner = await db.guilds.get<string>("owner");
+        if (!owner) return interaction.reply(res.danger("Opsie, parece que o owner não foi definido corretamente"));
+
+        if (interaction.user.id != owner) return interaction.reply(res.danger("Você não tem permissão de executar esse comando!"));
         const startTime = Date.now();
         let message = brBuilder(
             "Iniciando configurações rápidas..."
@@ -116,7 +120,7 @@ createCommand({
             await db.guilds.set("adminRoles", adminRoles);
             await db.guilds.set("superAdminRoles", superAdminRoles);
 
-            await updateMessage(`Funções definidas com sucesso!: \n- Super Admin: ${superAdminRoles.map(role => `<@&${role}>`).join(", ") || "\`Não foram encontrados super admins\`"}\n- Admin: ${adminRoles.map(role => `<@&${role}>`).join(", ")  || "\`Não foram encontrados super admins\`"}\n- Mod: ${modRoles.map(role => `<@&${role}>`).join(", ")  || "\`Não foram encontrados super admins\`"}`);
+            await updateMessage(`Funções definidas com sucesso!: \n- Super Admin: ${superAdminRoles.map(role => `<@&${role}>`).join(", ") || "\`Não foram encontrados super admins\`"}\n- Admin: ${adminRoles.map(role => `<@&${role}>`).join(", ")  || "\`Não foram encontrados admins\`"}\n- Mod: ${modRoles.map(role => `<@&${role}>`).join(", ")  || "\`Não foram encontrados moderadores\`"}`);
         }
 
         const logoPath = path.join(process.cwd(), "src", "assets", "logo-ticktool-b-300px.png");

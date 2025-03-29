@@ -4,10 +4,10 @@ Bot de Tickets Para discord
 
 
 <p align="center">
-  <img src="https://github.com/user-attachments/assets/02a6926a-0d4a-4b22-8555-36567f21152c" alt="ticktoollogo">
+  <img src="src/assets/logo-ticktool-b-300px.png" alt="ticktoollogo">
 </p>
 
-![Bun](https://img.shields.io/badge/Bun-%23000000.svg?style=for-the-badge&logo=bun&logoColor=white)
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 [![GitHub release](https://img.shields.io/github/release/BirdTool/tickTool-b.svg)](https://GitHub.com/BirdTool/tickTool-b/releases/)
@@ -87,6 +87,14 @@ Assim que ligado, o bot reconhecerá seu id na primeira ligação, caso contrár
 
 Use `/dashboard` para ver o que você pode fazer.
 
+---
+
+#### Novo metódo para configurar:
+
+Usando `/start` o própio bot irá configurar automaticamente para você, mas claro você ainda pode usar /dashboard para configurar
+
+---
+
 #### Criar um embed e atribuir um ticket a ele:
 
 1. Use `/dashboard` e selecione `embed`, e após isso pressione para criar um novo embed.
@@ -97,6 +105,7 @@ Use `/dashboard` para ver o que você pode fazer.
 6. Use `/dashboard` e selecione `embeds` e após isso, enviar embed.
 7. Selecione o embed desejado, escolha entre: `Enviar sem botões ou menu` ou `Enviar com botões ou menu`, e depois selecione o canal desejado.
 8. Tudo pronto! seu embed foi enviado ao canal selecionado com a(as) opções de ticket
+
 
 ## Contribuição
 
