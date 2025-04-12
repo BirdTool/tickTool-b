@@ -1,125 +1,115 @@
-<h1 align="center">
-Bot de Tickets Para discord
-</h1>
-
+# Bot de Tickets para Discord
 
 <p align="center">
-  <img src="src/assets/logo-ticktool-b-300px.png" alt="ticktoollogo">
+  <img src="src/assets/logo-ticktool-b-300px.png" alt="Logo do TickTool" width="200">
 </p>
 
-![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
-![TypeScript](https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white)
-![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
-[![GitHub release](https://img.shields.io/github/release/BirdTool/tickTool-b.svg)](https://GitHub.com/BirdTool/tickTool-b/releases/)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/BirdTool/tickTool-b/graphs/commit-activity)
+<p align="center">
+  <a href="https://nodejs.org"><img src="https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white" alt="NodeJS"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"></a>
+  <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E" alt="JavaScript"></a>
+  <a href="https://github.com/BirdTool/tickTool-b/releases"><img src="https://img.shields.io/github/release/BirdTool/tickTool-b.svg" alt="GitHub release"></a>
+  <a href="https://github.com/BirdTool/tickTool-b/graphs/commit-activity"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a>
+</p>
 
-## Gerencie tickets no Discord de forma simples e eficiente!
+## 🚀 O que é isso?
 
-Um bot de tickets personalizavel que é possivel criar seus próprios embeds de maneira fácil e atribuir facilmente um botão ou selectMenu
-
----
-
-Foi construido utilizando typescript utilizando a base do [RinckoDev](https://github.com/rinckodev)
+Este é um bot de Discord feito para simplificar a vida de quem precisa gerenciar tickets de suporte. Com ele, você cria embeds bonitinhos, adiciona botões ou menus e organiza o suporte no seu servidor de um jeito prático e eficiente. Tudo isso sem complicação!
 
 ---
 
-Foi pensado para usuários mais leigos, apenas necessita de por o token em um arquivo [`env.txt`](https://github.com/BirdTool/tickTool-b/blob/main/env.txt)
+## 🎉 Como usar o bot
+
+Quer colocar o bot pra rodar sem dor de cabeça? Então segue esse guia rápido e fácil:
+
+### 📥 Instalação
+
+1. **Baixe o bot**: Vai na [página de releases](https://github.com/BirdTool/tickTool-b/releases) e pega o `build-js.zip` da versão mais recente.
+2. **Descompacte**: Extrai tudo do arquivo zipado.
+3. **Token do bot**: Abre o `env.txt` com qualquer editor de texto e cola o **token** do seu bot onde tá indicado. Não tem token? Dá uma olhada [neste guia](https://discordjs.guide/preparations/setting-up-a-bot-application.html) pra criar um.
+4. **Extras (opcional)**: Quer notificações de erro? Tira o `#` da linha do *webhook* no `env.txt` e coloca a URL do seu *webhook*.
+5. **Hospedagem**: Entra no site da [Discloud](https://discloud.com), faz login e sobe o arquivo com o comando `.upc` ou direto pelo painel.
+
+> **Dica**: Usa o `.upc` direitinho pra subir o arquivo sem erro!
+
+### ⚙️ Primeiros passos
+
+Depois de ligar o bot, ele vai te reconhecer como dono na primeira execução. Se algo der errado, dá pra ajustar o banco de dados manualmente ou pedir ajuda abrindo uma [issue](https://github.com/BirdTool/tickTool-b/issues).
+
+- **Rápido e fácil**: Digita `/start` no Discord e o bot configura tudo sozinho.
+- **Mais controle**: Usa o `/dashboard` pra abrir um painel interativo e ajustar o bot do seu jeito.
+
+### 🎨 Criando um embed com tickets
+
+Quer um embed personalizado pra abrir tickets? É simples:
+
+1. Digita `/dashboard` no Discord.
+2. Clica em `embed` > "Criar novo embed".
+3. Escolhe título, descrição e cores pra deixar tudo com a sua cara.
+4. Volta no `/dashboard`, vai em `tickets` e cria um novo ticket (ex.: "Suporte Geral").
+5. Em `tickets`, seleciona "Atribuir a um embed" e escolhe o embed que você fez.
+6. Em `embeds`, clica em "Enviar embed", decide se quer botões ou menu, e manda pro canal que você quiser.
+7. Tá pronto! Seu embed com tickets já tá no ar! 🎉
 
 ---
 
-## Instrução de instalação
+## 🛠️ Pra quem curte por a mão na massa
 
-### Para somente utilizar o bot:
+Se você manja de código e quer mexer no bot ou ajudar no projeto, aqui vão as infos que você precisa:
 
-1. Navegue até releases ou [clique aqui](https://github.com/BirdTool/tickTool-b/releases)
-2. Baixe o arquivo `build-js.zip` da versão mais **recente**
-3. Modifique o arquivo `env.txt` colocando seu token, e de preferência um webhook para notificar erros(não esquecendo de retirar o "#" do inicio)
-4. Se você descompatou para editar o arquivo env.txt, você pode compactar novamente, ou ignore esse passo.
-5. Enviar na discloud via `.upc` ou pelo site https://discloud.com
+### 📂 Como o projeto é organizado
 
-> observação: **NÃO** use `.up` para enviar o arquivo e sim `.upc`
+Olha só como as pastas e arquivos estão estruturados:
 
-Você pode [pular para Instrução de uso](#instrução-de-uso)
-
-
-### Para editar o código:
-
-### Utilizando terminal:
-
-#### Requisitos:
-
-1. Tenha o git baixado
-2. Execute esse comando dentro do diretório preferido
-
-``` bash
-git clone https://github.com/BirdTool/tickTool-b
+```plaintext
+└── dev-ts/
+    ├── discloud.config       # Config pra hospedagem
+    ├── package.json          # Dependências e scripts
+    ├── readme.md             # Esse arquivo aqui!
+    ├── src/                  # Onde a mágica acontece
+        ├── index.ts          # Começa tudo aqui
+        ├── colors.json       # Cores pra customizar
+        ├── types/            # Tipos pro TypeScript
+        ├── settings/         # Configurações gerais
+        ├── menus/            # Menus interativos
+        ├── functions/        # Funções úteis
+        ├── discord/          # Integração com Discord
+        ├── database/         # Banco de dados
+        ├── class/            # Classes auxiliares
+        └── assets/           # Imagens e afins
 ```
 
-3. Modifique ou faça o que quiser com o código
+### 🧑‍💻 Quer contribuir?
 
-### Baixando no GitHub:
+Adoramos ajuda! Segue o passo a passo pra colaborar:
 
-#### Requisitos:
-- Ter algum descompactador zip baixado no seu sistema
-- #### Compactores recomendados:
-- - Zarchiever (celular)
-- - Winhar (windows)
-- - 7-zip (linux e windows)
-
-No linux se você baixar a versão `tar.gz` não será necessário o descompactador
-
-#### Passos:
-
-1. Acesse a página aonde está todas as [versões do repositório](https://github.com/BirdTool/tickTool-b/releases)
-2. Escolha a versão, você pode escolher entre a versão beta mais recente (se houver) ou a versão estável mais recente
-3. Selecione "`dev-ts.zip`"
-4. Descompacte o arquivo
-5. Use como quiser
-
-## Instrução de uso
-
-#### Como ligar
-1. Coloque o seu token no arquivo `env.txt` / ou se você baixou a versão dev: `.env`.
-2. Use `npm install` para instalar as dependências.
-3. Use `npm run start` para ligar o bot / ou se você baixou a versão dev use `npm run dev`.
-
-Assim que ligado, o bot reconhecerá seu id na primeira ligação, caso contrário, modifique manualmente a database ou crie uma [issues](https://github.com/BirdTool/tickTool-b/issues) pedindo ajuda.
-
-Use `/dashboard` para ver o que você pode fazer.
-
----
-
-#### Novo metódo para configurar:
-
-Usando `/start` o própio bot irá configurar automaticamente para você, mas claro você ainda pode usar /dashboard para configurar
-
----
-
-#### Criar um embed e atribuir um ticket a ele:
-
-1. Use `/dashboard` e selecione `embed`, e após isso pressione para criar um novo embed.
-2. Faça as alterações desejadas no embed.
-3. Após criar o embed use `/dashboard` novamente e selecione `tickets`, e selecione criar um novo ticket.
-4. Configure o ticket como desejar e salve ele.
-5. Use `/dashboard` novamente e selecione `tickets` de novo, e selecione `Atribuir a um embed` e faça como pedir.
-6. Use `/dashboard` e selecione `embeds` e após isso, enviar embed.
-7. Selecione o embed desejado, escolha entre: `Enviar sem botões ou menu` ou `Enviar com botões ou menu`, e depois selecione o canal desejado.
-8. Tudo pronto! seu embed foi enviado ao canal selecionado com a(as) opções de ticket
-
-
-## Contribuição
-
-Contribuições são bem-vindas! Se você deseja contribuir, siga estas etapas:
-
-1. Faça um fork do repositório.
-2. Crie um branch com a sua feature ou correção de bug:  
+1. Faz um *fork* do repositório.
+2. Cria um *branch* novo:
    ```bash
-   git checkout -b minha-feature
-3. faça as alterações e commit:
-    ```bash
-    git commit -m "Adicionando nova funcionalidade"
-    ```
-4. Envie para o repositório remoto:
-    ```bash
-    git push origin minha-feature
-    ```
+   git checkout -b minha-ideia-legal
+   ```
+3. Mete a mão no código e faz um *commit*:
+   ```bash
+   git commit -m "Adicionei algo incrível"
+   ```
+4. Envia pro GitHub:
+   ```bash
+   git push origin minha-ideia-legal
+   ```
+5. Abre um *Pull Request* e espera a gente dar uma olhada! 😊
+
+---
+
+## 📜 Licença
+
+O projeto usa a [Licença MIT](LICENSE.md). Pode usar, alterar e compartilhar, só não esquece de dar crédito!
+
+---
+
+## 🤝 Valeu!
+
+Um agradecimento especial ao [RinckoDev](https://github.com/rinckodev) que foi usando a base de bots de Discord dele que eu fiz essa maravilhosa source.
+
+---
+
+Quer criar o seu próprio bot assim como fiz o meu? Use `npx constatic@latest` e [veja esse vídeo aqui](https://youtu.be/0wkw-Vh8Ags?si=xTRG_tGzZkHkJ9JH)
