@@ -9,7 +9,7 @@
   <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typescript-%23007ACC.svg?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript"></a>
   <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript"><img src="https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E" alt="JavaScript"></a>
   <a href="https://github.com/BirdTool/tickTool-b/releases"><img src="https://img.shields.io/github/release/BirdTool/tickTool-b.svg" alt="GitHub release"></a>
-  <a href="https://github.com/BirdTool/tickTool-b/graphs/commit-activity"><img src="https://img.shields.io/badge/Maintained%3F-yes-green.svg" alt="Maintenance"></a>
+  <a href="https://github.com/BirdTool/tickTool-b/graphs/commit-activity"><img src="https://img.shields.io/badge/Maintained%3F-no-red.svg" alt="Maintenance"></a>
 </p>
 
 ## 🚀 O que é isso?
